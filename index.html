@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App de tareas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    
+</head>
+<body>
+ <div class="app"> <!-- Englobamos todo el contenido -->
+
+
+    <header class="header"> <!-- Encabezado de la aplicación -->
+
+        <button class="menu-toggle" type="button">☰</button>
+        <h1>Tareas y proyectos</h1>
+    </header>
+
+ <div class="layout"> <!-- Contenedor para organizar el sidebar y el main -->
+    
+     
+ <aside class="sidebar">  <!-- Barra lateral de navegación -->
+        <nav>
+         <p class="sidebar-title">Navegación</p>
+          <ul>
+            <li>
+                
+                <a class="active" href="#">
+                    <span class="sidebar-icon">📁</span>
+                    <span class="sidebar-text">Proyectos</span>
+                </a>
+            </li>
+            <li>
+                
+                <a href="#">
+                    <span class="sidebar-icon">📅</span>
+                    <span class="sidebar-text">Calendario</span>
+                </a>
+            </li>
+            <li>
+                
+                <a href="#">
+                    <span class="sidebar-icon">⚙️</span>
+                    <span class="sidebar-text">Ajustes</span>
+                </a>
+            </li>
+            <li>
+                
+                <a href="#">
+                    <span class="sidebar-icon">⏳</span>
+                     <span class="sidebar-text">Proximamente...</span>
+                </a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+<main class="main"> <!-- Contenido principal de la aplicación -->
+    
+    <div class="content">
+    <section class="boton-tareas"> <!-- Sección para el formulario de nueva tarea -->
+
+     <form> 
+        <label for="nueva-tarea">Nueva tarea:</label>  
+        
+        <input type="text" id="nueva-tarea" placeholder="Nueva tarea...">
+        <button type="submit">Agregar</button>
+     </form>
+
+    </section>
+
+    <section class="lista-tareas" > <!-- Sección para mostrar la lista de tareas -->
+        <h2>Lista de tareas</h2>
+        <ul id="task-list">
+            <li class="tarea">
+                <label class="tarea-row">
+                <input class="check" type="checkbox">
+                <span class="task-text">Proyecto 1 : Manejo de HTML y CSS</span>
+                <span class="prioridad alta">Alta</span>
+                </label>
+
+            </li>
+            <li class="tarea">
+                <label class="tarea-row">
+                    <input class="check" type="checkbox">
+                    <span class="task-text">Proyecto 2 : Interactividad con JavaScript y el DOM</span>
+                    <span class="prioridad media">Media</span>  
+                </label>
+            </li>
+            <li class="tarea">
+                <label class="tarea-row">
+                    <input class="check" type="checkbox">
+                    <span class="task-text">Proyecto 3 : Desconocido</span>
+                    <span class="prioridad baja">Baja</span>
+                </label>
+            </li>
+            <li class="tarea">
+                <label class="tarea-row">
+                    <input class="check" type="checkbox">
+                    <span class="task-text">Proyecto 4 : Desconocido</span>
+                    <span class="prioridad baja">Baja</span>
+                </label>
+            </li>
+        </ul>
+    </section>
+
+    </div>
+
+</main>
+
+
+
+</div>   
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const button = document.querySelector(".menu-toggle");
+  const sidebar = document.querySelector(".sidebar");
+
+  console.log("button:", button);
+  console.log("sidebar:", sidebar);
+
+  button.addEventListener("click", () => {
+    sidebar.classList.toggle("closed");
+    console.log("classes:", sidebar.className);
+  });
+});
+</script>
+
+</body>
+
+
+</html>
