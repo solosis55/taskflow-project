@@ -1,11 +1,11 @@
  
 
 * {
-    box-sizing: border-box;
+    box-sizing: border-box; /* aplicar padding y border en el ancho de la caja */
 }
 
 
-html {
+html {  /* Aplicamos nueva fuente , reiniciamos margin y padding y añadimos box sizing */
     font-family: 'Merriweather', serif;
     margin:0;
     padding:0;
@@ -13,7 +13,7 @@ html {
 }
 
 .app {
-    max-width: 1200px;
+    max-width: 1200px; 
     margin: 0 auto;
 }
 body {
@@ -122,6 +122,23 @@ body {
     transform: translateY(0);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     
+}
+
+.busqueda{
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin: 12px 0 18px;       
+}
+
+.busqueda input{
+
+   flex: 1;
+   padding: 5px;
+   font-size: 16px;
+
+
+
 }
 
 

@@ -64,7 +64,7 @@
     <div class="content">
     <section class="boton-tareas"> <!-- Sección para el formulario de nueva tarea -->
 
-     <form> 
+     <form id="task-form"> 
         <label for="nueva-tarea">Nueva tarea:</label>  
         
         <input type="text" id="nueva-tarea" placeholder="Nueva tarea...">
@@ -75,6 +75,11 @@
 
     <section class="lista-tareas" > <!-- Sección para mostrar la lista de tareas -->
         <h2>Lista de tareas</h2>
+        <div class="busqueda"> <!-- Barra de busqueda para filtrar -->
+         <label for="busqueda-input">Buscar</label>
+         <input id="busqueda-input" type="text" placeholder="Filtrar tareas">
+         </div>
+         
         <ul id="task-list">
             <li class="tarea">
                 <label class="tarea-row">
@@ -82,14 +87,17 @@
                 <span class="task-text">Proyecto 1 : Manejo de HTML y CSS</span>
                 <span class="prioridad alta">Alta</span>
                 </label>
+                <button class="delete-task">🗑</button>
 
             </li>
             <li class="tarea">
                 <label class="tarea-row">
                     <input class="check" type="checkbox">
                     <span class="task-text">Proyecto 2 : Interactividad con JavaScript y el DOM</span>
-                    <span class="prioridad media">Media</span>  
+                    <span class="prioridad media">Media</span>
+                    
                 </label>
+                <button class="delete-task">🗑</button>
             </li>
             <li class="tarea">
                 <label class="tarea-row">
@@ -97,13 +105,16 @@
                     <span class="task-text">Proyecto 3 : Desconocido</span>
                     <span class="prioridad baja">Baja</span>
                 </label>
+                <button class="delete-task">🗑</button>
             </li>
             <li class="tarea">
                 <label class="tarea-row">
                     <input class="check" type="checkbox">
                     <span class="task-text">Proyecto 4 : Desconocido</span>
                     <span class="prioridad baja">Baja</span>
+                     
                 </label>
+                <button class="delete-task">🗑</button>
             </li>
         </ul>
     </section>
@@ -115,6 +126,8 @@
 
 
 </div>   
+
+<script src="app.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const button = document.querySelector(".menu-toggle");
