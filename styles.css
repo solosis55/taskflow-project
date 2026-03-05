@@ -67,6 +67,8 @@ body {
 .tarea {
     /* estructura de fila (prepara espacio para acciones a la derecha en el futuro) */
   display: flex;
+  position: relative;
+  overflow: visible;
   justify-content: space-between;
   align-items: center;
 
@@ -87,6 +89,11 @@ body {
     align-items: center;
     gap: 10px;
     width: 100%;
+    overflow: visible;
+}
+.tarea.menu-open {
+  z-index: 50; /* la tarjeta activa queda por encima de las otras */
+    position: relative;
 }
 
 .prioridad {
@@ -232,6 +239,30 @@ body {
     color: #777;
 }
 
+.prioridad{
+    position: relative;
+    cursor: pointer;
+}
+
+.menu-prioridad{
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    z-index: 1000;
+}
+
+.opcion-prioridad{
+    padding: 6px 12px;
+    cursor: pointer;
+}
+
+.opcion-prioridad:hover{
+    background: #f3f3f3;
+}
 @media (max-width:768px){
 
 .layout{
@@ -260,3 +291,4 @@ padding:8px;
 }
 
 }
+
