@@ -13,12 +13,32 @@ function guardarTareas() {
 }
 
 function reconstruirArray() {
-    tareas = []; // Limpiamos el array de tareas
-    const items = taskList.querySelectorAll(".task-text"); // Seleccionamos todos los elementos de texto de las tareas en el DOM
+
+    tareas = [];
+
+    const items = taskList.querySelectorAll("li");
+
     items.forEach(item => {
-        tareas.push(item.textContent); // Agregamos el texto de cada tarea al array de tareas
+
+        const texto = item.querySelector(".task-text").textContent;
+
+        const badge = item.querySelector(".priority");
+
+        let prioridad = "high";
+
+        if (badge.classList.contains("medium")) prioridad = "medium";
+        if (badge.classList.contains("low")) prioridad = "low";
+
+        tareas.push({
+            text: texto,
+            priority: prioridad
+        });
+
     });
+
 }
+
+
 
 //  4-Cargar tareas desde localStorage al iniciar la aplicación
 
@@ -27,26 +47,29 @@ function reconstruirArray() {
 
     tareas = JSON.parse(tareasGuardadas); // Convertimos el string de tareas guardadas a un array
     taskList.innerHTML = ""; // Limpiamos la lista de tareas en el DOM antes de cargar las tareas guardadas
-    tareas.forEach(texto => {
+    tareas.forEach(tarea => {
 
-        const tarea = crearTarea(texto); // Creamos un elemento de tarea para cada texto guardado
-        taskList.appendChild(tarea); // Agregamos la tarea a la lista en el DOM
+        const li = crearTarea(tarea.text, tarea.priority); // Creamos un elemento de lista para cada tarea guardada utilizando la función crearTarea, pasando el texto y la prioridad de cada tarea como argumentos  
+        taskList.appendChild(li); // Agregamos cada tarea guardada al DOM utilizando la función crearTarea para crear el elemento de lista correspondiente
     });
 
     }; 
 
 // 1- Función para crear una nueva tarea 
-function crearTarea(texto) {
+function crearTarea(texto, prioridad="high") {
     const li = document.createElement("li"); // Creamos un nuevo elemento de lista
-    li.classList.add("tarea"); // Le damos la clase "tarea"
-
+    li.className ="tarea flex items-center justify-between bg-white p-4 rounded-lg shadow"; // Le damos la clase "tarea" y otras clases para el estilo con Tailwind CSS
     li.innerHTML = `
-        <label class="tarea-row">
-                <input class="check" type="checkbox">
-                <span class="task-text"></span>
-                </label>
-                <span class="prioridad alta">Alta</span>
-                <button class="delete-task">🗑</button>`; //agregamos propiedades para el CSS 
+     <label class="flex items-center gap-3 flex-1">
+     <input type="checkbox" class="w-4 h-4">
+     <span class="task-text flex-1">${texto}</span>
+     
+     
+     </label>
+     <span class="priority ${prioridad} px-2 py-1 text-sm rounded">${prioridad === "high" ? "Alta" : prioridad === "medium" ? "Media" : "Baja"}
+</span>
+     <button class="delete-task ml-3 text-gray-500 hover:text-red-500 transition"> 🗑</button>
+     `; //agregamos propiedades para el CSS 
 
     
     li.querySelector(".task-text").textContent = texto; // Establecemos el texto de la tarea
@@ -62,7 +85,9 @@ form.addEventListener("submit", function(event) {
         if (texto !== "") { // Verificamos que el texto no esté vacío
             const nuevaTarea = crearTarea(texto); // Creamos una nueva tarea con el texto ingresado
 
-            tareas.push(texto); // Agregamos el texto de la nueva tarea al array de tareas
+            tareas.push({
+                text: texto,
+                priority: "high"}); // Agregamos el texto de la nueva tarea al array de tareas
             guardarTareas(); // Guardamos el array de tareas actualizado en localStorage
              
             taskList.appendChild(nuevaTarea); // Agregamos la nueva tarea a la lista
@@ -105,7 +130,7 @@ busquedaInput.addEventListener("input", () => { // Agregamos un evento de entrad
 taskList.addEventListener("click", function(event) { // Agregamos un evento de clic a la lista de tareas para manejar los clics en el elemento de prioridad y en las opciones del menú de prioridad
 
   // CLICK EN PRIORIDAD → abrir menú
-if (event.target.classList.contains("prioridad")) { // Verificamos si el elemento clickeado es el elemento de prioridad
+if (event.target.classList.contains("priority")) { // Verificamos si el elemento clickeado es el elemento de prioridad
 
     event.stopPropagation(); // Detenemos la propagación del evento para evitar que el clic se propague al documento y cierre el menú inmediatamente después de abrirlo
 
@@ -113,7 +138,7 @@ if (event.target.classList.contains("prioridad")) { // Verificamos si el element
     const tarea = prioridad.closest(".tarea"); // Encontramos la tarea más cercana al elemento de prioridad clickeado para poder asociar el menú de prioridad a esa tarea específica
 
     // cerrar cualquier menu abierto
-    document.querySelectorAll(".menu-prioridad").forEach(menu => { // Seleccionamos todos los menús de prioridad abiertos en el DOM
+    document.querySelectorAll(".priority-menu").forEach(menu =>  { // Seleccionamos todos los menús de prioridad abiertos en el DOM
         menu.remove();
     });
 
@@ -125,13 +150,12 @@ if (event.target.classList.contains("prioridad")) { // Verificamos si el element
     tarea.classList.add("menu-open"); // Agregamos la clase "menu-open" a la tarea clickeada para que quede por encima de las otras tareas en el z-index y el menú se muestre correctamente
 
     const menu = document.createElement("div"); // Creamos un nuevo elemento div que servirá como el menú de opciones de prioridad
-    menu.classList.add("menu-prioridad"); // Le damos la clase "menu-prioridad" al nuevo div para poder estilizarlo con CSS y diferenciarlo de otros elementos en el DOM
+    menu.classList.add("priority-menu"); // Le damos la clase "priority-menu" al nuevo div para poder estilizarlo con CSS y diferenciarlo de otros elementos en el DOM
 
     menu.innerHTML = `
-        <div class="opcion-prioridad baja">Baja</div>
-        <div class="opcion-prioridad media">Media</div>
-        <div class="opcion-prioridad alta">Alta</div>
-    `;
+        <div class="priority-option high">Alta</div>
+        <div class="priority-option medium">Media</div>
+        <div class="priority-option low">Baja</div>`;
 
     prioridad.appendChild(menu); // Agregamos el menú de opciones de prioridad como hijo del elemento de prioridad clickeado para que se muestre justo debajo de él en el DOM
 }
@@ -139,18 +163,27 @@ if (event.target.classList.contains("prioridad")) { // Verificamos si el element
 
 
 // CLICK EN OPCION DEL MENU
-if (event.target.classList.contains("opcion-prioridad")) { // Verificamos si el elemento clickeado es una opción de prioridad
+if (event.target.classList.contains("priority-option")) { // Verificamos si el elemento clickeado es una opción de prioridad
 
     const opcion = event.target; // Obtenemos la opción de prioridad clickeada
-    const prioridad = opcion.closest(".prioridad"); // Encontramos el elemento de prioridad más cercano a la opción clickeada
+    const prioridad = opcion.closest(".priority"); // Encontramos el elemento de prioridad más cercano a la opción clickeada
     const tarea = opcion.closest(".tarea"); // Encontramos la tarea más cercana a la opción clickeada
 
-    const nivel = opcion.textContent.toLowerCase(); // Obtenemos el nivel de prioridad seleccionado (baja, media o alta) y lo convertimos a minúsculas
+    let nivel = "";
+    if (opcion.classList.contains("high")) {
+      nivel = "high";}
+    else if (opcion.classList.contains("medium")) {
+    nivel = "medium";  
+    } else {
+    nivel = "low";} // Obtenemos el nivel de prioridad seleccionado (baja, media o alta) y lo convertimos a minúsculas
 
-    prioridad.classList.remove("alta","media","baja"); // Eliminamos cualquier clase de prioridad existente para actualizarla con la nueva selección
+    prioridad.classList.remove("high","medium","low"); // Eliminamos cualquier clase de prioridad existente para actualizarla con la nueva selección
     prioridad.classList.add(nivel); // Agregamos la clase correspondiente al nivel de prioridad seleccionado (baja, media o alta)
 
     prioridad.textContent = opcion.textContent; // Actualizamos el texto del elemento de prioridad para reflejar la selección realizada por el usuario
+    reconstruirArray();
+    guardarTareas();
+
 
     // cerrar menu
     opcion.parentElement.remove(); // Eliminamos el menú de opciones de prioridad del DOM para cerrarlo después de que se haya seleccionado una opción
@@ -161,7 +194,7 @@ if (event.target.classList.contains("opcion-prioridad")) { // Verificamos si el 
 
 document.addEventListener("click", function() { // Agregamos un evento de clic al documento para cerrar el menú de prioridad cuando se haga clic fuera de él
 
-    document.querySelectorAll(".menu-prioridad").forEach(menu => {  // Seleccionamos todos los menús de prioridad abiertos en el DOM
+    document.querySelectorAll(".priority-menu").forEach(menu => {  // Seleccionamos todos los menús de prioridad abiertos en el DOM
         menu.remove();
     });
 
@@ -172,6 +205,30 @@ document.addEventListener("click", function() { // Agregamos un evento de clic a
 
 
 
+// DARK MODE
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const darkToggle = document.querySelector("#dark-toggle");
+
+    if (!darkToggle) return;
+
+    // aplicar modo guardado
+    if (localStorage.getItem("darkmode") === "true") {
+        document.documentElement.classList.add("dark");
+    }
+
+    darkToggle.addEventListener("click", () => {
+
+        document.documentElement.classList.toggle("dark");
+
+        const activo = document.documentElement.classList.contains("dark");
+
+        localStorage.setItem("darkmode", activo);
+
+    });
+
+});
 
 
 
