@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="styles.css">
     
 </head>
-<body class="bg-gray-100">
+<body> <!-- Aplicamos la clase app.body al body para que tome el fondo y el color de texto definidos en el CSS -->
     
  <div class="app-layout"> <!-- Englobamos todo el contenido -->
 
@@ -109,7 +109,7 @@
                 <span class="task-text">Proyecto 1 : Manejo de HTML y CSS</span>                    
                 </label>
 
-                <div class="flex items-center gap-3"><!-- Contenedor para la prioridad y el botón de eliminar -->
+                <div class="task-row"><!-- Contenedor para la prioridad y el botón de eliminar -->
                  <span class="priority high"> Alta </span>
      
                  <button class="ml-3 delete-task"> 🗑</button>
@@ -125,7 +125,7 @@
                     
                     
                 </label>
-                <div class="flex items-center gap-3">
+                <div class="task-row">
                     <span class="priority medium"> Media </span>
                     <button class="ml-3 delete-task"> 🗑</button>
                 </div>
@@ -138,7 +138,7 @@
                     <span class="task-text">Proyecto 3 : Desconocido</span>
                     
                 </label>
-                <div class="flex items-center gap-3">
+                <div class="task-row">
                     <span class="priority medium"> Media </span>
                     <button class="ml-3 delete-task"> 🗑</button>
                 </div>
@@ -152,8 +152,10 @@
                     
                      
                 </label>
-                <span class="priority low"> Baja </span>
-                <button class="ml-3 delete-task"> 🗑</button>
+                <div class="task-row">
+                    <span class="priority low"> Baja </span>
+                    <button class="ml-3 delete-task"> 🗑</button>
+                </div>
             </li>
         </ul>
     </section>

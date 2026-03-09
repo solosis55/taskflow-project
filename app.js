@@ -103,7 +103,7 @@ form.addEventListener("submit", function(event) {
 taskList.addEventListener("click", function(event) {
 
     if (event.target.classList.contains("delete-task")) { // Verificamos si el elemento clickeado es el botón de eliminar
-        const tarea = event.target.closest(".tarea"); // Encontramos la tarea más cercana al botón
+        const tarea = event.target.closest(".task-card"); // Encontramos la tarea más cercana al botón
         if (tarea) {
             
             tarea.remove(); // Eliminamos la tarea de la lista

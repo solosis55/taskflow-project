@@ -15,10 +15,10 @@
 
   .app-body{
     
-    @apply flex flex-1;
+    @apply flex flex-col md:flex-row flex-1  
 }
   .main-content {
-    @apply flex-1 justify-center p-6;
+    @apply flex-1 justify-center p-4 md:p-6;
   }
 
   .content{
@@ -42,11 +42,13 @@
   /*  SIDEBAR //////////////////////////////////////////////////////////////////////////////////////////////*/ 
 
   .sidebar {
-    @apply w-64 bg-white shadow-md p-4 transition-all duration-300 dark:bg-slate-900 dark:text-gray-200;
+    @apply w-full md:w-64 bg-white shadow-md p-4 transition-all duration-300 dark:bg-slate-900 dark:text-gray-200;
+     
     
   }
   .sidebar.closed {
     @apply w-16;
+    @apply hidden md:block w-64;
   }
   .sidebar-title {
     @apply text-lg font-semibold mb-4;
@@ -145,7 +147,6 @@
   .check {
     @apply w-4 h-4 cursor-pointer
   }
-
 
   /* BOTÓN BORRAR //////////////////////////////////////////////////////////////////////////////////////////////////*/
 
