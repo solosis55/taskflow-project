@@ -5,14 +5,14 @@ const input = document.querySelector("#nueva-tarea"); // Seleccionamos el campo 
 const taskList = document.querySelector("#task-list"); // Seleccionamos la lista donde se mostrarán las tareas
 
 
-//Array y funciones para guardar y cargar tareas en localStorage
+// FUNCIONES //////////////////////////////////////////////////////////////////////////////////////////////////////
 let tareas = []; // Array para almacenar las tareas
 
 function guardarTareas() {
     localStorage.setItem("tareas", JSON.stringify(tareas)); // Guardamos el array de tareas en localStorage como un string
 }
 
-function reconstruirArray() {
+function reconstruirArray() { // Función para reconstruir el array de tareas a partir de las tareas que están actualmente en el DOM
 
     tareas = [];
 
@@ -39,28 +39,12 @@ function reconstruirArray() {
 }
 
 
-
-//  4-Cargar tareas desde localStorage al iniciar la aplicación
-
-  const tareasGuardadas = localStorage.getItem("tareas"); // Obtenemos las tareas guardadas en localStorage, si existen
-  if (tareasGuardadas) {  // Verificamos si hay tareas guardadas
-
-    tareas = JSON.parse(tareasGuardadas); // Convertimos el string de tareas guardadas a un array
-    taskList.innerHTML = ""; // Limpiamos la lista de tareas en el DOM antes de cargar las tareas guardadas
-    tareas.forEach(tarea => {
-
-        const li = crearTarea(tarea.text, tarea.priority); // Creamos un elemento de lista para cada tarea guardada utilizando la función crearTarea, pasando el texto y la prioridad de cada tarea como argumentos  
-        taskList.appendChild(li); // Agregamos cada tarea guardada al DOM utilizando la función crearTarea para crear el elemento de lista correspondiente
-    });
-
-    }; 
-
-// 1- Función para crear una nueva tarea 
+//  Función para crear una nueva tarea 
 function crearTarea(texto, prioridad="high") {
     const li = document.createElement("li"); // Creamos un nuevo elemento de lista
-    li.className ="tarea flex items-center justify-between bg-white p-4 rounded-lg shadow"; // Le damos la clase "tarea" y otras clases para el estilo con Tailwind CSS
+    li.className ="task-card"; // Le damos la clase "task-card" y otras clases para el estilo con Tailwind CSS
     li.innerHTML = `
-     <label class="flex items-center gap-3 flex-1">
+     <label class="task-row">
      <input type="checkbox" class="w-4 h-4">
      <span class="task-text flex-1">${texto}</span>
      
@@ -78,7 +62,27 @@ function crearTarea(texto, prioridad="high") {
 
     
 }
- // 2- Evento de enviar formulario para agregar una nueva tarea
+
+
+//  Cargar tareas guardadas al cargar la página
+
+  const tareasGuardadas = localStorage.getItem("tareas"); // Obtenemos las tareas guardadas en localStorage, si existen
+  if (tareasGuardadas) {  // Verificamos si hay tareas guardadas
+
+    tareas = JSON.parse(tareasGuardadas); // Convertimos el string de tareas guardadas a un array
+    taskList.innerHTML = ""; // Limpiamos la lista de tareas en el DOM antes de cargar las tareas guardadas
+    tareas.forEach(tarea => {
+
+        const li = crearTarea(tarea.text, tarea.priority); // Creamos un elemento de lista para cada tarea guardada utilizando la función crearTarea, pasando el texto y la prioridad de cada tarea como argumentos  
+        taskList.appendChild(li); // Agregamos cada tarea guardada al DOM utilizando la función crearTarea para crear el elemento de lista correspondiente
+    });
+
+    }; 
+
+
+ // EVENTOS DEL FORMULARIO //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+ // Evento de envío del formulario para agregar una nueva tarea
 form.addEventListener("submit", function(event) {
         event.preventDefault(); // Evitamos que el formulario se envíe de forma tradicional
         const texto = input.value.trim(); // Obtenemos el texto ingresado y eliminamos espacios en blanco
@@ -95,7 +99,7 @@ form.addEventListener("submit", function(event) {
         }
     });
 
-// 3- Evento de clic para eliminar tareas
+// Evento de clic para eliminar tareas
 taskList.addEventListener("click", function(event) {
 
     if (event.target.classList.contains("delete-task")) { // Verificamos si el elemento clickeado es el botón de eliminar
@@ -109,6 +113,8 @@ taskList.addEventListener("click", function(event) {
         }
     }
 });
+
+// Evento de entrada para buscar tareas
 
 const busquedaInput =document.querySelector("#busqueda-input"); // Seleccionamos el campo de entrada para la búsqueda de tareas
 busquedaInput.addEventListener("input", () => { // Agregamos un evento de entrada al campo de búsqueda
@@ -125,7 +131,9 @@ busquedaInput.addEventListener("input", () => { // Agregamos un evento de entrad
 });
 
 
-// Funcion para crear un menu en prioridad y elegir la prioridad
+
+
+// FUNCION PARA CREAR UN MENU DE BADGET Y ELEGIR /////////////////////////////////////////////////////////
 
 taskList.addEventListener("click", function(event) { // Agregamos un evento de clic a la lista de tareas para manejar los clics en el elemento de prioridad y en las opciones del menú de prioridad
 
@@ -135,14 +143,14 @@ if (event.target.classList.contains("priority")) { // Verificamos si el elemento
     event.stopPropagation(); // Detenemos la propagación del evento para evitar que el clic se propague al documento y cierre el menú inmediatamente después de abrirlo
 
     const prioridad = event.target; // Obtenemos el elemento de prioridad clickeado
-    const tarea = prioridad.closest(".tarea"); // Encontramos la tarea más cercana al elemento de prioridad clickeado para poder asociar el menú de prioridad a esa tarea específica
+    const tarea = prioridad.closest(".task-card"); // Encontramos la tarea más cercana al elemento de prioridad clickeado para poder asociar el menú de prioridad a esa tarea específica
 
     // cerrar cualquier menu abierto
     document.querySelectorAll(".priority-menu").forEach(menu =>  { // Seleccionamos todos los menús de prioridad abiertos en el DOM
         menu.remove();
     });
 
-    document.querySelectorAll(".tarea.menu-open").forEach(t => { // Seleccionamos todas las tareas que tienen la clase "menu-open" (es decir, las tareas que están mostrando el menú de prioridad)
+    document.querySelectorAll(".task-card.menu-open").forEach(t => { // Seleccionamos todas las tareas que tienen la clase "menu-open" (es decir, las tareas que están mostrando el menú de prioridad)
         t.classList.remove("menu-open");
     });
 
@@ -162,12 +170,14 @@ if (event.target.classList.contains("priority")) { // Verificamos si el elemento
 
 
 
-// CLICK EN OPCION DEL MENU
+// CLICK EN OPCION DEL MENU ///////////////////////////////////////////////////////////////////////////////////////
+
+// Evento de clic para seleccionar una opción de prioridad en el menú
 if (event.target.classList.contains("priority-option")) { // Verificamos si el elemento clickeado es una opción de prioridad
 
     const opcion = event.target; // Obtenemos la opción de prioridad clickeada
     const prioridad = opcion.closest(".priority"); // Encontramos el elemento de prioridad más cercano a la opción clickeada
-    const tarea = opcion.closest(".tarea"); // Encontramos la tarea más cercana a la opción clickeada
+    const tarea = opcion.closest(".task-card"); // Encontramos la tarea más cercana a la opción clickeada
 
     let nivel = "";
     if (opcion.classList.contains("high")) {
@@ -185,13 +195,13 @@ if (event.target.classList.contains("priority-option")) { // Verificamos si el e
     guardarTareas();
 
 
-    // cerrar menu
+    // cerrar menu de elección de prioridad
     opcion.parentElement.remove(); // Eliminamos el menú de opciones de prioridad del DOM para cerrarlo después de que se haya seleccionado una opción
     tarea.classList.remove("menu-open"); // Quitamos la clase "menu-open" de la tarea para que vuelva a su posición normal en el z-index
 }
-
 });
 
+// Evento de clic en el documento para cerrar el menú de prioridad al hacer clic fuera de él
 document.addEventListener("click", function() { // Agregamos un evento de clic al documento para cerrar el menú de prioridad cuando se haga clic fuera de él
 
     document.querySelectorAll(".priority-menu").forEach(menu => {  // Seleccionamos todos los menús de prioridad abiertos en el DOM
@@ -205,15 +215,17 @@ document.addEventListener("click", function() { // Agregamos un evento de clic a
 
 
 
-// DARK MODE
+// DARK MODE ///////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Evento para alternar el modo oscuro al hacer clic en el botón de modo oscuro
 document.addEventListener("DOMContentLoaded", () => {
 
     const darkToggle = document.querySelector("#dark-toggle");
 
     if (!darkToggle) return;
 
-    // aplicar modo guardado
+
+    // hacer que el modo oscuro persista al recargar la página
     if (localStorage.getItem("darkmode") === "true") {
         document.documentElement.classList.add("dark");
     }
@@ -230,7 +242,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
+// Alternar el icono del botón de modo oscuro
+const btn = document.getElementById("dark-toggle");
 
+btn.addEventListener("click", () => {
+    if (btn.textContent === "🌙") {
+        btn.textContent = "☀️";
+    } else {
+        btn.textContent = "🌙";}
+});
 
 
 

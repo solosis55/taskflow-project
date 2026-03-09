@@ -4,7 +4,9 @@
 
 @layer components {
 
-  /* layout principal */
+
+
+  /* LAYOUT PRINCIPAL ////////////////////////////////////////////////////////////////////////////////////////////*/
 
   .app-layout {
     @apply flex flex-col min-h-screen bg-gray-100;
@@ -35,17 +37,17 @@
         @apply ml-auto;
     }
 }
-  /* sidebar */
+
+
+  /*  SIDEBAR //////////////////////////////////////////////////////////////////////////////////////////////*/ 
 
   .sidebar {
     @apply w-64 bg-white shadow-md p-4 transition-all duration-300 dark:bg-slate-900 dark:text-gray-200;
     
   }
-
   .sidebar.closed {
     @apply w-16;
   }
-
   .sidebar-title {
     @apply text-lg font-semibold mb-4;
   }
@@ -53,7 +55,6 @@
   .sidebar-nav {
     @apply space-y-2;
   }
-
   .sidebar-item {
     @apply flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer transition-colors hover:bg-gray-100;
     @apply dark:hover:bg-slate-700;
@@ -61,7 +62,12 @@
   .sidebar.closed .sidebar-title{
     @apply hidden;
   }
-  /* formulario */
+ .sidebar.closed .sidebar-text{
+    @apply hidden;
+}
+
+
+  /* FORMULARIO/////////////////////////////////////////////////////////////////////////////////////////////////*/
 
 
   .tarea{
@@ -83,52 +89,83 @@
   .task-button {
     @apply w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition;
     @apply dark:bg-blue-600 dark:hover:bg-blue-500;
+    @apply active:scale-[0.98];
+    @apply transition-transform duration-100;
+    @apply hover:scale-[1.02];
 
     
   }
 
-  .sidebar.closed .sidebar-text{
-    @apply hidden;
-}
+ 
 
-  /* lista de tareas */
+
+  /* LISTA DE TAREAS //////////////////////////////////////////////////////////////////////////////////////////////////*/
 
   .task-list {
     @apply space-y-3;
+    
   }
 
-  /* tarjeta de tarea */
+ .task-head-text {
+    @apply text-gray-600 font-semibold dark:text-gray-300;
+    @apply flex justify-center items-center;
+    @apply text-2xl mb-4;
+    
+  }
+ .task-head-search {
+    @apply text-gray-600 font-semibold dark:text-gray-300;
+    @apply flex justify-center items-center;
+    @apply text-xl mb-4;
+    
+  }
+  /* TARJETA DE TAREA //////////////////////////////////////////////////////////////////////////////////////////////////*/
 
   .task-card {
     @apply flex items-center justify-between bg-white p-4 rounded-lg shadow transition hover:shadow-md;
+    @apply transition-all duration-200 ease-out;
+    @apply hover:shadow-lg hover:-translate-y-1;
+    @apply active:scale-[0.98];
+    @apply dark:bg-slate-800 dark:text-gray-100;
+    
     
   }
 
   .task-row {
     @apply flex items-center gap-3 flex-1;
+    
   }
 
   .task-text {
     @apply flex-1;
   }
 
-  /* checkbox */
+
+  /* CHECKBOX //////////////////////////////////////////////////////////////////////////////////////////////////*/
 
   .check {
-    @apply w-4 h-4 cursor-pointer;
+    @apply w-4 h-4 cursor-pointer
   }
 
-  /* botón borrar */
+
+  /* BOTÓN BORRAR //////////////////////////////////////////////////////////////////////////////////////////////////*/
 
   .delete-task {
     @apply text-gray-400 hover:text-red-500 transition cursor-pointer;
+    @apply hover:text-red-500 hover:scale-110;
   }
 
-  /* badge prioridad */
+
+  /* BADGE PRIORIDAD //////////////////////////////////////////////////////////////////////////////////////////////////*/
 
   .priority {
     @apply  relative cursor-pointer;
     @apply dark:hover:bg-slate-700;
+    @apply px-2 py-1 rounded text-sm font-semibold;
+    @apply transition-colors duration-200;
+    @apply border-2 border-gray-300;
+    @apply dark:border-slate-600;
+    @apply hover:border-gray-400;
+    @apply dark:hover:border-slate-500;
   }
 
   .priority.high {
@@ -146,10 +183,11 @@
     @apply dark:hover:bg-slate-700;
   }
 
-  /* menú prioridad */
+
+  /* MENÚ PRIORIDAD //////////////////////////////////////////////////////////////////////////////////////////////////*/
 
   .priority-menu {
-    @apply absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded shadow-lg flex flex-col z-50;
+    @apply absolute left-full top-0 mt-0 bg-white border border-gray-200 rounded shadow-lg flex flex-col z-50;
     @apply dark:bg-gray-800 dark:border-gray-600 dark:text-white;
   }
 
@@ -170,6 +208,19 @@
 .priority-option.low{
     @apply text-green-600 hover:bg-green-50;
     @apply dark:hover:bg-slate-700;
+}
+
+/* DARK MODE ///////////////////////////////////////////////////////////////////////////////////////////////////*/
+.dark-toggle {
+    @apply cursor-pointer text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors;
+    @apply flex items-center gap-2;
+    @apply text-sm font-medium;
+    @apply border-2 border-gray-300 rounded px-2 py-1;
+    @apply dark:border-2 dark:border-gray-600;
+    @apply hover:border-gray-400 dark:hover:border-gray-500;
+    @apply active:scale-[0.98];
+    @apply transition-transform duration-100;
+     
 }
 
 }
