@@ -1,190 +1,93 @@
 <!DOCTYPE html>
 <html class>
-<head
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App de tareas</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>App de tareas</title>
+  <!-- Fuentes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,opsz,wght@0,18..144,300..900;1,18..144,300..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body> <!-- Aplicamos la clase app.body al body para que tome el fondo y el color de texto definidos en el CSS -->
-    
- <div class="app-layout"> <!-- Englobamos todo el contenido -->
+<body>
 
+  <!-- Layout principal: estructura flexible de toda la app -->
+  <div class="app-layout">
 
-    <header class="header"> <!-- Encabezado de la aplicación -->
-        
-
-
-        <button class="menu-toggle text-xl">☰</button>
-        <h1 class="text-2xl font-bold">Tareas y proyectos</h1>
-        <button id="dark-toggle" class="dark-toggle">🌙</button>
-        
+    <!-- Encabezado: menú hamburguesa, título y botón modo oscuro -->
+    <header class="header">
+      <button class="menu-toggle text-xl">☰</button>
+      <h1 class="text-2xl font-bold">Tareas y proyectos</h1>
+      <button id="dark-toggle" class="dark-toggle">🌙</button>
     </header>
 
- <div class="app-body"> <!-- Contenedor para organizar el sidebar y el main -->
-    
- <!-- SIDEBAR -->
-<aside class="sidebar">  <!-- Barra lateral de navegación -->
+    <!-- Cuerpo: sidebar + contenido principal -->
+    <div class="app-body">
+
+      <!-- Sidebar: navegación (cerrado por defecto en móvil) -->
+      <aside class="sidebar closed">
         <nav>
-         <p class="sidebar-title">Navegación</p>
+          <p class="sidebar-title">Navegación</p>
           <ul class="sidebar-nav">
             <li>
-                
-                <a class="sidebar-item active">
-                    <span class="sidebar-icon">📁</span>
-                    <span class="sidebar-text">Proyectos</span>
-                </a>
+              <a class="sidebar-item active">
+                <span class="sidebar-icon">📁</span>
+                <span class="sidebar-text">Proyectos</span>
+              </a>
             </li>
             <li>
-                <a class="sidebar-item" href="#">
-                
-                    <span class="sidebar-icon">📅</span>
-                    <span class="sidebar-text">Calendario</span>
-                </a>
+              <a class="sidebar-item" href="#">
+                <span class="sidebar-icon">📅</span>
+                <span class="sidebar-text">Calendario</span>
+              </a>
             </li>
             <li>
-                
-                <a class="sidebar-item">
-                    <span class="sidebar-icon">⚙️</span>
-                    <span class="sidebar-text">Ajustes</span>
-                </a>
+              <a class="sidebar-item">
+                <span class="sidebar-icon">⚙️</span>
+                <span class="sidebar-text">Ajustes</span>
+              </a>
             </li>
             <li>
-                
-                <a class="sidebar-item">
-                    <span class="sidebar-icon">⏳</span>
-                     <span class="sidebar-text">Proximamente...</span>
-                </a>
+              <a class="sidebar-item">
+                <span class="sidebar-icon">⏳</span>
+                <span class="sidebar-text">Proximamente...</span>
+              </a>
             </li>
           </ul>
         </nav>
       </aside>
 
+      <!-- Contenido principal -->
+      <main class="main-content">
+        <div class="content">
 
-<!-- MAIN -->
+          <!-- Sección: formulario para añadir tareas -->
+          <section>
+            <form id="task-form" class="task-form">
+              <label class="task-form"></label>
+              <input id="nueva-tarea" type="text" placeholder="Nueva tarea..." class="task-input">
+              <button type="submit" class="task-button">Agregar</button>
+            </form>
+          </section>
 
-<!-- Formulario para añadir tareas-->
-<main class="main-content"> <!-- Contenido principal de la aplicación -->
-    
-    <div class="content">
-    <section class=""> <!-- Sección para el formulario de nueva tarea -->
+          <!-- Sección: lista de tareas con búsqueda -->
+          <section>
+            <h2 class="task-head-text">Lista de tareas</h2>
+            <div class="busqueda mb-4">
+              <label class=".task-head-search">Buscar</label>
+              <input id="busqueda-input" type="text" placeholder="Filtrar tareas" class="task-input">
+            </div>
+            <ul id="task-list" class="task-list"></ul>
+          </section>
 
-     <form id="task-form" class="task-form"> <!-- Formulario para agregar nuevas tareas -->
-        <label class="task-form"></label> 
-        
-        <input 
-        id="nueva-tarea"
-        type="text"
-        placeholder="Nueva tarea..."
-        class="task-input"
-  >
-        <button type="submit"class="task-button">Agregar</button>
-     </form>
-
-    </section>
-
-<!-- Lista de tareas -->
-
-    <section > <!-- Sección para mostrar la lista de tareas -->
-        <h2 class="task-head-text">Lista de tareas</h2>
-        <div class="busqueda mb-4"> <!-- Barra de busqueda para filtrar -->
-         <label class=".task-head-search">Buscar</label>
-         <input 
-         id="busqueda-input"
-         type="text"
-         placeholder="Filtrar tareas"
-         class="task-input">
-         </div>
-         
-
-        <ul id="task-list" class="task-list">
-            <li class="task-card">
-
-                <label class="task-row">
-                <input type="checkbox" class="w-4 h-4">
-                <span class="task-text">Proyecto 1 : Manejo de HTML y CSS</span>                    
-                </label>
-
-                <div class="task-row"><!-- Contenedor para la prioridad y el botón de eliminar -->
-                 <span class="priority high"> Alta </span>
-     
-                 <button class="ml-3 delete-task"> 🗑</button>
-
-                </div>
-
-
-            </li>
-            <li class="task-card">
-                <label class="task-row">
-                    <input type="checkbox" class="w-4 h-4">
-                    <span class="task-text">Proyecto 2 : Interactividad con JavaScript y el DOM</span>
-                    
-                    
-                </label>
-                <div class="task-row">
-                    <span class="priority medium"> Media </span>
-                    <button class="ml-3 delete-task"> 🗑</button>
-                </div>
-            </li>
-
-
-            <li class="task-card">
-                <label class="task-row">
-                    <input type="checkbox" class="w-4 h-4">
-                    <span class="task-text">Proyecto 3 : Desconocido</span>
-                    
-                </label>
-                <div class="task-row">
-                    <span class="priority medium"> Media </span>
-                    <button class="ml-3 delete-task"> 🗑</button>
-                </div>
-            </li>
-
-
-            <li class="task-card">
-                <label class="task-row">
-                    <input type="checkbox" class="w-4 h-4">
-                    <span class="task-text">Proyecto 4 : Desconocido</span>
-                    
-                     
-                </label>
-                <div class="task-row">
-                    <span class="priority low"> Baja </span>
-                    <button class="ml-3 delete-task"> 🗑</button>
-                </div>
-            </li>
-        </ul>
-    </section>
+        </div>
+      </main>
 
     </div>
+  </div>
 
-</main>
-
-
-
-</div>   
-
-<script src="app.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const button = document.querySelector(".menu-toggle");
-  const sidebar = document.querySelector(".sidebar");
-
-  console.log("button:", button);
-  console.log("sidebar:", sidebar);
-
-  button.addEventListener("click", () => {
-    sidebar.classList.toggle("closed");
-    console.log("classes:", sidebar.className);
-  });
-});
-</script>
+  <script src="app.js"></script>
 
 </body>
-
-
 </html>

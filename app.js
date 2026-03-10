@@ -1,275 +1,295 @@
 console.log("JS conectado");
 
-const form = document.querySelector("#task-form"); // Seleccionamos el formulario
-const input = document.querySelector("#nueva-tarea"); // Seleccionamos el campo de entrada para la nueva tarea
-const taskList = document.querySelector("#task-list"); // Seleccionamos la lista donde se mostrarán las tareas
+// ═══════════════════════════════════════════════════════════════════
+// REFERENCIAS AL DOM
+// ═══════════════════════════════════════════════════════════════════
 
+const form = document.querySelector("#task-form");
+const input = document.querySelector("#nueva-tarea");
+const taskList = document.querySelector("#task-list");
+const busquedaInput = document.querySelector("#busqueda-input");
 
-// FUNCIONES //////////////////////////////////////////////////////////////////////////////////////////////////////
-let tareas = []; // Array para almacenar las tareas
+// ═══════════════════════════════════════════════════════════════════
+// ESTADO Y PERSISTENCIA (localStorage)
+// ═══════════════════════════════════════════════════════════════════
+
+let tareas = [];
 
 function guardarTareas() {
-    localStorage.setItem("tareas", JSON.stringify(tareas)); // Guardamos el array de tareas en localStorage como un string
+  localStorage.setItem("tareas", JSON.stringify(tareas));
 }
 
-function reconstruirArray() { // Función para reconstruir el array de tareas a partir de las tareas que están actualmente en el DOM
+function cargarTareasGuardadas() {
+  const guardadas = localStorage.getItem("tareas");
+  if (!guardadas) return;
 
-    tareas = [];
-
-    const items = taskList.querySelectorAll("li");
-
-    items.forEach(item => {
-
-        const texto = item.querySelector(".task-text").textContent;
-
-        const badge = item.querySelector(".priority");
-
-        let prioridad = "high";
-
-        if (badge.classList.contains("medium")) prioridad = "medium";
-        if (badge.classList.contains("low")) prioridad = "low";
-
-        tareas.push({
-            text: texto,
-            priority: prioridad
-        });
-
-    });
-
+  tareas = JSON.parse(guardadas);
+  taskList.innerHTML = "";
+  tareas.forEach(t => {
+    const subtasks = Array.isArray(t.subtasks) ? t.subtasks : [];
+    taskList.appendChild(crearTarea(t.text, t.priority, subtasks));
+  });
 }
 
+// ═══════════════════════════════════════════════════════════════════
+// FUNCIONES DE TAREAS
+// ═══════════════════════════════════════════════════════════════════
 
-//  Función para crear una nueva tarea 
-function crearTarea(texto, prioridad="high") {
-    const li = document.createElement("li"); // Creamos un nuevo elemento de lista
-    li.className ="task-card"; // Le damos la clase "task-card" y otras clases para el estilo con Tailwind CSS
-    li.innerHTML = `
-     <label class="task-row">
-     <input type="checkbox" class="w-4 h-4">
-     <span class="task-text flex-1">${texto}</span>
-     
-     
-     </label>
-     <span class="priority ${prioridad} px-2 py-1 text-sm rounded">${prioridad === "high" ? "Alta" : prioridad === "medium" ? "Media" : "Baja"}
-</span>
-     <button class="delete-task ml-3 text-gray-500 hover:text-red-500 transition"> 🗑</button>
-     `; //agregamos propiedades para el CSS 
+const ETIQUETAS_PRIORIDAD = { high: "Alta", medium: "Media", low: "Baja" };
 
-    
-    li.querySelector(".task-text").textContent = texto; // Establecemos el texto de la tarea
+function crearSubtaskItem(texto, done = false) {
+  const item = document.createElement("li");
+  item.className = "subtask-item";
+  item.innerHTML = `
+    <label class="subtask-row">
+      <input type="checkbox" class="subtask-check">
+      <span class="subtask-text"></span>
+    </label>
+    <button class="delete-subtask" type="button" aria-label="Eliminar micro tarea">✕</button>
+  `;
 
-    return li; // Devolvemos el elemento de lista creado
+  const textNode = item.querySelector(".subtask-text");
+  const checkNode = item.querySelector(".subtask-check");
+  textNode.textContent = texto;
+  checkNode.checked = done;
 
-    
+  if (done) {
+    item.classList.add("done");
+  }
+
+  return item;
 }
 
+function crearTarea(texto, prioridad = "high", subtasks = []) {
+  const li = document.createElement("li");
+  li.className = "task-card";
+  li.innerHTML = `
+    <div class="task-card-top">
+      <label class="task-row">
+        <input type="checkbox" class="w-4 h-4">
+        <span class="task-text flex-1"></span>
+      </label>
+      <div class="task-actions">
+        <span class="priority ${prioridad} px-2 py-1 text-sm rounded">${ETIQUETAS_PRIORIDAD[prioridad]}</span>
+        <button class="delete-task" type="button" aria-label="Eliminar tarea">🗑</button>
+      </div>
+    </div>
 
-//  Cargar tareas guardadas al cargar la página
+    <div class="subtasks">
+      <div class="subtask-form">
+        <input type="text" class="subtask-input" placeholder="Agregar micro tarea...">
+        <button class="add-subtask" type="button">Agregar</button>
+      </div>
+      <ul class="subtask-list"></ul>
+    </div>
+  `;
 
-  const tareasGuardadas = localStorage.getItem("tareas"); // Obtenemos las tareas guardadas en localStorage, si existen
-  if (tareasGuardadas) {  // Verificamos si hay tareas guardadas
-
-    tareas = JSON.parse(tareasGuardadas); // Convertimos el string de tareas guardadas a un array
-    taskList.innerHTML = ""; // Limpiamos la lista de tareas en el DOM antes de cargar las tareas guardadas
-    tareas.forEach(tarea => {
-
-        const li = crearTarea(tarea.text, tarea.priority); // Creamos un elemento de lista para cada tarea guardada utilizando la función crearTarea, pasando el texto y la prioridad de cada tarea como argumentos  
-        taskList.appendChild(li); // Agregamos cada tarea guardada al DOM utilizando la función crearTarea para crear el elemento de lista correspondiente
-    });
-
-    }; 
-
-
- // EVENTOS DEL FORMULARIO //////////////////////////////////////////////////////////////////////////////////////////////////////
-
- // Evento de envío del formulario para agregar una nueva tarea
-form.addEventListener("submit", function(event) {
-        event.preventDefault(); // Evitamos que el formulario se envíe de forma tradicional
-        const texto = input.value.trim(); // Obtenemos el texto ingresado y eliminamos espacios en blanco
-        if (texto !== "") { // Verificamos que el texto no esté vacío
-            const nuevaTarea = crearTarea(texto); // Creamos una nueva tarea con el texto ingresado
-
-            tareas.push({
-                text: texto,
-                priority: "high"}); // Agregamos el texto de la nueva tarea al array de tareas
-            guardarTareas(); // Guardamos el array de tareas actualizado en localStorage
-             
-            taskList.appendChild(nuevaTarea); // Agregamos la nueva tarea a la lista
-            input.value = ""; // Limpiamos el campo de entrada
-        }
-    });
-
-// Evento de clic para eliminar tareas
-taskList.addEventListener("click", function(event) {
-
-    if (event.target.classList.contains("delete-task")) { // Verificamos si el elemento clickeado es el botón de eliminar
-        const tarea = event.target.closest(".task-card"); // Encontramos la tarea más cercana al botón
-        if (tarea) {
-            
-            tarea.remove(); // Eliminamos la tarea de la lista
-
-            reconstruirArray(); // Reconstruimos el array de tareas a partir de las tareas que quedan en el DOM
-            guardarTareas(); // Guardamos el array de tareas actualizado en localStorage
-        }
+  li.querySelector(".task-text").textContent = texto;
+  const subtaskList = li.querySelector(".subtask-list");
+  subtasks.forEach(sub => {
+    if (sub?.text) {
+      subtaskList.appendChild(crearSubtaskItem(sub.text, Boolean(sub.done)));
     }
-});
+  });
 
-// Evento de entrada para buscar tareas
-
-const busquedaInput =document.querySelector("#busqueda-input"); // Seleccionamos el campo de entrada para la búsqueda de tareas
-busquedaInput.addEventListener("input", () => { // Agregamos un evento de entrada al campo de búsqueda
-
-    const busqueda = busquedaInput.value.toLowerCase().trim(); // Obtenemos el texto de búsqueda, lo convertimos a minúsculas y eliminamos espacios en blanco
-    const tareasDOM = taskList.querySelectorAll(".tarea"); // Seleccionamos todas las tareas en el DOM
-
-    tareasDOM.forEach(tarea => { // Iteramos sobre cada tarea en el DOM
-
-        const textoTarea = tarea.querySelector(".task-text").textContent.toLowerCase(); // Obtenemos el texto de la tarea y lo convertimos a minúsculas
-        const coincide = textoTarea.includes(busqueda); // Verificamos si el texto de la tarea incluye el texto de búsqueda
-        tarea.style.display = coincide ? "" : "none"; // Mostramos u ocultamos la tarea según si coincide con la búsqueda
-    });
-});
-
-
-
-
-// FUNCION PARA CREAR UN MENU DE BADGET Y ELEGIR /////////////////////////////////////////////////////////
-
-taskList.addEventListener("click", function(event) { // Agregamos un evento de clic a la lista de tareas para manejar los clics en el elemento de prioridad y en las opciones del menú de prioridad
-
-  // CLICK EN PRIORIDAD → abrir menú
-if (event.target.classList.contains("priority")) { // Verificamos si el elemento clickeado es el elemento de prioridad
-
-    event.stopPropagation(); // Detenemos la propagación del evento para evitar que el clic se propague al documento y cierre el menú inmediatamente después de abrirlo
-
-    const prioridad = event.target; // Obtenemos el elemento de prioridad clickeado
-    const tarea = prioridad.closest(".task-card"); // Encontramos la tarea más cercana al elemento de prioridad clickeado para poder asociar el menú de prioridad a esa tarea específica
-
-    // cerrar cualquier menu abierto
-    document.querySelectorAll(".priority-menu").forEach(menu =>  { // Seleccionamos todos los menús de prioridad abiertos en el DOM
-        menu.remove();
-    });
-
-    document.querySelectorAll(".task-card.menu-open").forEach(t => { // Seleccionamos todas las tareas que tienen la clase "menu-open" (es decir, las tareas que están mostrando el menú de prioridad)
-        t.classList.remove("menu-open");
-    });
-
-    // subir la tarjeta activa
-    tarea.classList.add("menu-open"); // Agregamos la clase "menu-open" a la tarea clickeada para que quede por encima de las otras tareas en el z-index y el menú se muestre correctamente
-
-    const menu = document.createElement("div"); // Creamos un nuevo elemento div que servirá como el menú de opciones de prioridad
-    menu.classList.add("priority-menu"); // Le damos la clase "priority-menu" al nuevo div para poder estilizarlo con CSS y diferenciarlo de otros elementos en el DOM
-
-    menu.innerHTML = `
-        <div class="priority-option high">Alta</div>
-        <div class="priority-option medium">Media</div>
-        <div class="priority-option low">Baja</div>`;
-
-    prioridad.appendChild(menu); // Agregamos el menú de opciones de prioridad como hijo del elemento de prioridad clickeado para que se muestre justo debajo de él en el DOM
+  return li;
 }
 
+function obtenerPrioridadDeBadge(badge) {
+  if (badge.classList.contains("medium")) return "medium";
+  if (badge.classList.contains("low")) return "low";
+  return "high";
+}
 
+function reconstruirArray() {
+  tareas = [];
+  taskList.querySelectorAll(".task-card").forEach(item => {
+    const texto = item.querySelector(".task-text").textContent;
+    const prioridad = obtenerPrioridadDeBadge(item.querySelector(".priority"));
+    const subtasks = Array.from(item.querySelectorAll(".subtask-item")).map(sub => ({
+      text: sub.querySelector(".subtask-text").textContent,
+      done: sub.querySelector(".subtask-check").checked
+    }));
 
-// CLICK EN OPCION DEL MENU ///////////////////////////////////////////////////////////////////////////////////////
+    tareas.push({ text: texto, priority: prioridad, subtasks });
+  });
+}
 
-// Evento de clic para seleccionar una opción de prioridad en el menú
-if (event.target.classList.contains("priority-option")) { // Verificamos si el elemento clickeado es una opción de prioridad
+function cerrarMenusPrioridad() {
+  document.querySelectorAll(".priority-menu").forEach(m => m.remove());
+  document.querySelectorAll(".task-card.menu-open").forEach(t => t.classList.remove("menu-open"));
+}
 
-    const opcion = event.target; // Obtenemos la opción de prioridad clickeada
-    const prioridad = opcion.closest(".priority"); // Encontramos el elemento de prioridad más cercano a la opción clickeada
-    const tarea = opcion.closest(".task-card"); // Encontramos la tarea más cercana a la opción clickeada
+// ═══════════════════════════════════════════════════════════════════
+// EVENTOS DE TAREAS (agregar, eliminar, búsqueda, subtareas, prioridad)
+// ═══════════════════════════════════════════════════════════════════
 
-    let nivel = "";
-    if (opcion.classList.contains("high")) {
-      nivel = "high";}
-    else if (opcion.classList.contains("medium")) {
-    nivel = "medium";  
-    } else {
-    nivel = "low";} // Obtenemos el nivel de prioridad seleccionado (baja, media o alta) y lo convertimos a minúsculas
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const texto = input.value.trim();
+  if (!texto) return;
 
-    prioridad.classList.remove("high","medium","low"); // Eliminamos cualquier clase de prioridad existente para actualizarla con la nueva selección
-    prioridad.classList.add(nivel); // Agregamos la clase correspondiente al nivel de prioridad seleccionado (baja, media o alta)
+  const nueva = { text: texto, priority: "high", subtasks: [] };
+  tareas.push(nueva);
+  taskList.appendChild(crearTarea(nueva.text, nueva.priority, nueva.subtasks));
+  guardarTareas();
+  input.value = "";
+});
 
-    prioridad.textContent = opcion.textContent; // Actualizamos el texto del elemento de prioridad para reflejar la selección realizada por el usuario
+taskList.addEventListener("click", (e) => {
+  // Eliminar tarea principal
+  if (e.target.classList.contains("delete-task")) {
+    const tarea = e.target.closest(".task-card");
+    if (tarea) {
+      tarea.remove();
+      reconstruirArray();
+      guardarTareas();
+    }
+    return;
+  }
+
+  // Agregar micro tarea
+  if (e.target.classList.contains("add-subtask")) {
+    const tarea = e.target.closest(".task-card");
+    const inputSub = tarea?.querySelector(".subtask-input");
+    const listSub = tarea?.querySelector(".subtask-list");
+    const textoSub = inputSub?.value.trim();
+
+    if (textoSub && listSub) {
+      listSub.appendChild(crearSubtaskItem(textoSub, false));
+      inputSub.value = "";
+      reconstruirArray();
+      guardarTareas();
+    }
+    return;
+  }
+
+  // Eliminar micro tarea
+  if (e.target.classList.contains("delete-subtask")) {
+    const subtask = e.target.closest(".subtask-item");
+    if (subtask) {
+      subtask.remove();
+      reconstruirArray();
+      guardarTareas();
+    }
+    return;
+  }
+
+  // Abrir menú de prioridad
+  if (e.target.classList.contains("priority")) {
+    e.stopPropagation();
+    const prioridad = e.target;
+    const tarea = prioridad.closest(".task-card");
+
+    cerrarMenusPrioridad();
+    tarea.classList.add("menu-open");
+
+    const menu = document.createElement("div");
+    menu.className = "priority-menu";
+    menu.innerHTML = `
+      <div class="priority-option high">Alta</div>
+      <div class="priority-option medium">Media</div>
+      <div class="priority-option low">Baja</div>
+    `;
+
+    prioridad.appendChild(menu);
+    return;
+  }
+
+  // Seleccionar prioridad
+  if (e.target.classList.contains("priority-option")) {
+    const opcion = e.target;
+    const prioridad = opcion.closest(".priority");
+    const nivel = opcion.classList.contains("high")
+      ? "high"
+      : opcion.classList.contains("medium")
+        ? "medium"
+        : "low";
+
+    prioridad.classList.remove("high", "medium", "low");
+    prioridad.classList.add(nivel);
+    prioridad.textContent = opcion.textContent;
+
     reconstruirArray();
     guardarTareas();
-
-
-    // cerrar menu de elección de prioridad
-    opcion.parentElement.remove(); // Eliminamos el menú de opciones de prioridad del DOM para cerrarlo después de que se haya seleccionado una opción
-    tarea.classList.remove("menu-open"); // Quitamos la clase "menu-open" de la tarea para que vuelva a su posición normal en el z-index
-}
+    cerrarMenusPrioridad();
+  }
 });
 
-// Evento de clic en el documento para cerrar el menú de prioridad al hacer clic fuera de él
-document.addEventListener("click", function() { // Agregamos un evento de clic al documento para cerrar el menú de prioridad cuando se haga clic fuera de él
+taskList.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" || !e.target.classList.contains("subtask-input")) return;
 
-    document.querySelectorAll(".priority-menu").forEach(menu => {  // Seleccionamos todos los menús de prioridad abiertos en el DOM
-        menu.remove();
-    });
-
-    document.querySelectorAll(".tarea.menu-open").forEach(t => { // Seleccionamos todas las tareas que tienen la clase "menu-open" (es decir, las tareas que están mostrando el menú de prioridad)
-        t.classList.remove("menu-open");
-    });
+  e.preventDefault();
+  const tarea = e.target.closest(".task-card");
+  const boton = tarea?.querySelector(".add-subtask");
+  if (boton) {
+    boton.click();
+  }
 });
 
+taskList.addEventListener("change", (e) => {
+  if (!e.target.classList.contains("subtask-check")) return;
 
+  const subtask = e.target.closest(".subtask-item");
+  if (subtask) {
+    subtask.classList.toggle("done", e.target.checked);
+    reconstruirArray();
+    guardarTareas();
+  }
+});
 
-// DARK MODE ///////////////////////////////////////////////////////////////////////////////////////////////////
+busquedaInput.addEventListener("input", () => {
+  const busqueda = busquedaInput.value.toLowerCase().trim();
 
-// Evento para alternar el modo oscuro al hacer clic en el botón de modo oscuro
+  taskList.querySelectorAll(".task-card").forEach(tarea => {
+    const textoPrincipal = tarea.querySelector(".task-text").textContent.toLowerCase();
+    const textoSubtareas = Array.from(tarea.querySelectorAll(".subtask-text"))
+      .map(s => s.textContent.toLowerCase())
+      .join(" ");
+    const coincide = textoPrincipal.includes(busqueda) || textoSubtareas.includes(busqueda);
+    tarea.style.display = coincide ? "" : "none";
+  });
+});
+
+document.addEventListener("click", cerrarMenusPrioridad);
+
+// ═══════════════════════════════════════════════════════════════════
+// UI: Modo oscuro + Sidebar (inicialización en DOMContentLoaded)
+// ═══════════════════════════════════════════════════════════════════
+
 document.addEventListener("DOMContentLoaded", () => {
-
-    const darkToggle = document.querySelector("#dark-toggle");
-
-    if (!darkToggle) return;
-
-
-    // hacer que el modo oscuro persista al recargar la página
-    if (localStorage.getItem("darkmode") === "true") {
-        document.documentElement.classList.add("dark");
+  // Modo oscuro
+  const darkToggle = document.querySelector("#dark-toggle");
+  if (darkToggle) {
+    const darkActivo = localStorage.getItem("darkmode") === "true";
+    if (darkActivo) {
+      document.documentElement.classList.add("dark");
+      darkToggle.textContent = "☀️";
     }
 
     darkToggle.addEventListener("click", () => {
-
-        document.documentElement.classList.toggle("dark");
-
-        const activo = document.documentElement.classList.contains("dark");
-
-        localStorage.setItem("darkmode", activo);
-
+      document.documentElement.classList.toggle("dark");
+      localStorage.setItem("darkmode", document.documentElement.classList.contains("dark"));
+      darkToggle.textContent = document.documentElement.classList.contains("dark") ? "☀️" : "🌙";
     });
+  }
 
+  // Sidebar: persistir estado abierto/cerrado
+  const menuToggle = document.querySelector(".menu-toggle");
+  const sidebar = document.querySelector(".sidebar");
+  if (menuToggle && sidebar) {
+    const saved = localStorage.getItem("sidebarClosed");
+    if (saved !== null) sidebar.classList.toggle("closed", saved === "true");
+
+    menuToggle.addEventListener("click", () => {
+      sidebar.classList.toggle("closed");
+      localStorage.setItem("sidebarClosed", sidebar.classList.contains("closed"));
+    });
+  }
 });
 
-// Alternar el icono del botón de modo oscuro
-const btn = document.getElementById("dark-toggle");
+// ═══════════════════════════════════════════════════════════════════
+// CARGA INICIAL
+// ═══════════════════════════════════════════════════════════════════
 
-btn.addEventListener("click", () => {
-    if (btn.textContent === "🌙") {
-        btn.textContent = "☀️";
-    } else {
-        btn.textContent = "🌙";}
-});
-
-
-
- 
-
-
-
-
-
-    
-
-      
-
-
-
-
-
-
-
-
-   
- 
+cargarTareasGuardadas();

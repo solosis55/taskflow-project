@@ -2,226 +2,313 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom base styles */
+@layer base {
+  body {
+    font-family: 'Merriweather', Georgia, serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
 @layer components {
-
-
-
-  /* LAYOUT PRINCIPAL ////////////////////////////////////////////////////////////////////////////////////////////*/
+  /* ─── Layout ─────────────────────────────────────── */
 
   .app-layout {
-    @apply flex flex-col min-h-screen bg-gray-100;
-    @apply dark:bg-slate-950 
+    @apply flex flex-col min-h-screen;
+    @apply bg-stone-100 dark:bg-slate-950;
   }
 
-  .app-body{
-    
-    @apply flex flex-col md:flex-row flex-1  
-}
+  .app-body {
+    @apply flex flex-col md:flex-row flex-1;
+  }
+
   .main-content {
-    @apply flex-1 justify-center p-4 md:p-6;
+    @apply flex-1 flex justify-center p-4 md:p-8;
+    @apply bg-gradient-to-b from-stone-50/80 to-stone-100 dark:from-slate-900/50 dark:to-slate-950;
   }
 
-  .content{
-   @apply w-full max-w-2xl;
-}
+  .content {
+    @apply w-full max-w-2xl;
+  }
 
-  .header{
-    @apply flex items-center gap-4 bg-white shadow px-6 py-4 dark:bg-slate-900 dark:text-gray-100;
-    
+  /* ─── Header ─────────────────────────────────────── */
 
-    .header h1{
-        @apply text-xl font-bold;
-    }
+  .header {
+    @apply flex items-center gap-4 px-6 py-4;
+    @apply bg-white/90 dark:bg-slate-900/95 backdrop-blur-sm;
+    @apply border-b border-stone-200/80 dark:border-slate-700/80;
+    @apply shadow-sm dark:shadow-slate-950/50;
+    @apply dark:text-gray-100;
+  }
 
-    .header div{
-        @apply ml-auto;
-    }
-}
+  .header h1 {
+    @apply text-xl font-bold tracking-tight text-stone-800 dark:text-gray-100;
+  }
 
+  .header div {
+    @apply ml-auto;
+  }
 
-  /*  SIDEBAR //////////////////////////////////////////////////////////////////////////////////////////////*/ 
+  /* ─── Sidebar ────────────────────────────────────── */
 
   .sidebar {
-    @apply w-full md:w-64 bg-white shadow-md p-4 transition-all duration-300 dark:bg-slate-900 dark:text-gray-200;
-     
-    
+    @apply block md:block w-full md:w-64 p-4 shrink-0;
+    @apply bg-white dark:bg-slate-900;
+    @apply border-r border-stone-200/80 dark:border-slate-700/80;
+    @apply shadow-sm dark:shadow-slate-950/30;
+    @apply transition-all duration-300 ease-out;
+    @apply dark:text-gray-200;
   }
+
+  /* Cerrado en móvil: no ocupa espacio (hidden). En desktop: ancho reducido */
   .sidebar.closed {
-    @apply w-16;
-    @apply hidden md:block w-64;
+    @apply hidden md:block md:w-20 md:p-3 md:shrink-0;
+    @apply md:translate-x-0;
   }
+
+  
+
+  .sidebar.closed .sidebar-title,
+  .sidebar.closed .sidebar-text {
+    @apply hidden;
+  }
+
+  /* En móvil: ocultar navegación cuando el menú está cerrado */
+  .sidebar.closed .sidebar-nav,
+  .sidebar.closed nav {
+    @apply hidden md:block;
+  }
+
   .sidebar-title {
-    @apply text-lg font-semibold mb-4;
+    @apply text-sm font-semibold mb-4 uppercase tracking-wider text-stone-500 dark:text-slate-400;
   }
 
   .sidebar-nav {
-    @apply space-y-2;
+    @apply space-y-1;
   }
+
   .sidebar-item {
-    @apply flex items-center gap-3 px-3 py-2 rounded-md cursor-pointer transition-colors hover:bg-gray-100;
-    @apply dark:hover:bg-slate-700;
+    @apply flex items-center gap-3 px-3 py-2.5 rounded-lg;
+    @apply text-stone-700 dark:text-gray-300;
+    @apply hover:bg-stone-100 dark:hover:bg-slate-800;
+    @apply transition-colors duration-200;
   }
-  .sidebar.closed .sidebar-title{
-    @apply hidden;
+
+  .sidebar-item.active {
+    @apply bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300;
+    @apply hover:bg-indigo-100 dark:hover:bg-indigo-900/40;
   }
- .sidebar.closed .sidebar-text{
-    @apply hidden;
-}
 
+  /* ─── Form ───────────────────────────────────────── */
 
-  /* FORMULARIO/////////////////////////////////////////////////////////////////////////////////////////////////*/
+  .tarea {
+    @apply flex items-center justify-between p-4 rounded-xl;
+    @apply bg-white dark:bg-slate-800 dark:text-gray-100;
+    @apply border border-stone-200/60 dark:border-slate-700/60;
+    @apply shadow-sm;
+  }
 
-
-  .tarea{
-    @apply flex items-center justify-between bg-white p-4 rounded-lg shadow dark:bg-slate-800 dark:text-gray-100;
-    
-    
-}
   .task-form {
-    @apply mb-6;
-    @apply dark:text-gray-100;
-    
+    @apply mb-8 dark:text-gray-100;
   }
 
   .task-input {
-    @apply w-full border border-gray-300 rounded-md p-2 mb-2 focus:outline-none focus:ring-2 focus:ring-blue-400;
-    @apply dark:border-slate-600 dark:bg-slate-800 dark:text-gray-100 dark:focus:ring-blue-400;
+    @apply w-full rounded-lg px-3 py-2.5 mb-2;
+    @apply border border-stone-300 dark:border-slate-600;
+    @apply bg-white dark:bg-slate-800 dark:text-gray-100;
+    @apply placeholder:text-stone-400 dark:placeholder:text-slate-500;
+    @apply focus:outline-none focus:ring-2 focus:ring-indigo-400/60 focus:border-indigo-400;
+    @apply dark:focus:ring-indigo-500/50 dark:focus:border-indigo-500;
+    @apply transition-all duration-200;
   }
 
   .task-button {
-    @apply w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition;
-    @apply dark:bg-blue-600 dark:hover:bg-blue-500;
-    @apply active:scale-[0.98];
-    @apply transition-transform duration-100;
-    @apply hover:scale-[1.02];
-
-    
+    @apply w-full py-2.5 rounded-lg font-medium;
+    @apply bg-indigo-500 hover:bg-indigo-600 text-white;
+    @apply dark:bg-indigo-600 dark:hover:bg-indigo-500;
+    @apply focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2;
+    @apply active:scale-[0.98] transition-all duration-150;
   }
 
- 
-
-
-  /* LISTA DE TAREAS //////////////////////////////////////////////////////////////////////////////////////////////////*/
+  /* ─── Task list ──────────────────────────────────── */
 
   .task-list {
     @apply space-y-3;
-    
   }
 
- .task-head-text {
-    @apply text-gray-600 font-semibold dark:text-gray-300;
+  .task-head-text {
+    @apply text-2xl font-semibold mb-6;
+    @apply text-stone-700 dark:text-gray-200;
     @apply flex justify-center items-center;
-    @apply text-2xl mb-4;
-    
   }
- .task-head-search {
-    @apply text-gray-600 font-semibold dark:text-gray-300;
-    @apply flex justify-center items-center;
-    @apply text-xl mb-4;
-    
+
+  .task-head-search {
+    @apply text-lg font-medium mb-3;
+    @apply text-stone-600 dark:text-gray-400;
   }
-  /* TARJETA DE TAREA //////////////////////////////////////////////////////////////////////////////////////////////////*/
+
+  /* ─── Task card ──────────────────────────────────── */
 
   .task-card {
-    @apply flex items-center justify-between bg-white p-4 rounded-lg shadow transition hover:shadow-md;
+    @apply flex flex-col gap-3 p-4 rounded-xl;
+    @apply bg-white dark:bg-slate-800 dark:text-gray-100;
+    @apply border border-stone-200/60 dark:border-slate-700/60;
+    @apply shadow-sm hover:shadow-md hover:shadow-stone-200/50 dark:hover:shadow-slate-900/50;
+    @apply hover:border-stone-300/80 dark:hover:border-slate-600;
+    @apply hover:-translate-y-0.5;
+    @apply active:scale-[0.995];
     @apply transition-all duration-200 ease-out;
-    @apply hover:shadow-lg hover:-translate-y-1;
-    @apply active:scale-[0.98];
-    @apply dark:bg-slate-800 dark:text-gray-100;
-    
-    
   }
 
   .task-row {
     @apply flex items-center gap-3 flex-1;
-    
+  }
+
+  .task-card-top {
+    @apply w-full flex items-center gap-3;
+  }
+
+  .task-actions {
+    @apply flex items-center gap-2 ml-auto;
   }
 
   .task-text {
-    @apply flex-1;
+    @apply flex-1 text-stone-800 dark:text-gray-200;
   }
 
-
-  /* CHECKBOX //////////////////////////////////////////////////////////////////////////////////////////////////*/
+  /* ─── Checkbox ───────────────────────────────────── */
 
   .check {
-    @apply w-4 h-4 cursor-pointer
+    @apply w-4 h-4 cursor-pointer rounded border-stone-300;
   }
 
-  /* BOTÓN BORRAR //////////////////////////////////////////////////////////////////////////////////////////////////*/
+  /* ─── Delete button ──────────────────────────────── */
 
   .delete-task {
-    @apply text-gray-400 hover:text-red-500 transition cursor-pointer;
-    @apply hover:text-red-500 hover:scale-110;
+    @apply p-1.5 rounded-lg text-stone-400 hover:text-red-500;
+    @apply hover:bg-red-50 dark:hover:bg-red-950/30;
+    @apply transition-all duration-150 cursor-pointer;
+    @apply text-xl shrink-0;
   }
 
+  /* ─── Subtasks ───────────────────────────────────── */
 
-  /* BADGE PRIORIDAD //////////////////////////////////////////////////////////////////////////////////////////////////*/
+  .subtasks {
+    @apply w-full border-t border-stone-200/70 dark:border-slate-700/70 pt-3;
+  }
+
+  .subtask-form {
+    @apply flex gap-2 items-center;
+  }
+
+  .subtask-input {
+    @apply flex-1 rounded-md px-2.5 py-1.5 text-sm;
+    @apply border border-stone-300 dark:border-slate-600;
+    @apply bg-white dark:bg-slate-900 dark:text-gray-100;
+    @apply focus:outline-none focus:ring-2 focus:ring-indigo-400/60 focus:border-indigo-400;
+    @apply dark:focus:ring-indigo-500/50 dark:focus:border-indigo-500;
+  }
+
+  .add-subtask {
+    @apply px-3 py-1.5 rounded-md text-sm font-medium text-white;
+    @apply bg-indigo-500 hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-500;
+    @apply transition-colors duration-150;
+  }
+
+  .subtask-list {
+    @apply mt-2 space-y-1.5;
+  }
+
+  .subtask-item {
+    @apply flex items-center justify-between gap-2 rounded-md px-2 py-1.5;
+    @apply bg-stone-50 dark:bg-slate-900/70;
+  }
+
+  .subtask-row {
+    @apply flex items-center gap-2 flex-1 min-w-0;
+  }
+
+  .subtask-check {
+    @apply w-3.5 h-3.5 cursor-pointer;
+  }
+
+  .subtask-text {
+    @apply text-sm text-stone-700 dark:text-gray-300 break-words;
+  }
+
+  .subtask-item.done .subtask-text {
+    @apply line-through opacity-60;
+  }
+
+  .delete-subtask {
+    @apply text-xs text-stone-400 hover:text-red-500 px-1.5 py-0.5 rounded;
+    @apply hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors duration-150;
+  }
+
+  /* ─── Priority badges ────────────────────────────── */
 
   .priority {
-    @apply  relative cursor-pointer;
-    @apply dark:hover:bg-slate-700;
-    @apply px-2 py-1 rounded text-sm font-semibold;
-    @apply transition-colors duration-200;
-    @apply border-2 border-gray-300;
-    @apply dark:border-slate-600;
-    @apply hover:border-gray-400;
-    @apply dark:hover:border-slate-500;
+    @apply relative cursor-pointer px-2.5 py-1 rounded-md;
+    @apply text-xs font-semibold uppercase tracking-wide;
+    @apply transition-all duration-200;
   }
 
   .priority.high {
-    @apply text-red-600 hover:bg-red-50;
-    @apply dark:hover:bg-slate-700;
+    @apply bg-red-50 text-red-700 border border-red-200/80;
+    @apply dark:bg-red-950/40 dark:text-red-300 dark:border-red-800/60;
+    @apply hover:bg-red-100 dark:hover:bg-red-900/50;
   }
 
   .priority.medium {
-    @apply text-yellow-600 hover:bg-yellow-50;
-    @apply dark:hover:bg-slate-700;
+    @apply bg-amber-50 text-amber-800 border border-amber-200/80;
+    @apply dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800/60;
+    @apply hover:bg-amber-100 dark:hover:bg-amber-900/50;
   }
 
   .priority.low {
-    @apply text-green-600 hover:bg-green-50;
-    @apply dark:hover:bg-slate-700;
+    @apply bg-emerald-50 text-emerald-700 border border-emerald-200/80;
+    @apply dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800/60;
+    @apply hover:bg-emerald-100 dark:hover:bg-emerald-900/50;
   }
 
-
-  /* MENÚ PRIORIDAD //////////////////////////////////////////////////////////////////////////////////////////////////*/
+  /* ─── Priority menu ──────────────────────────────── */
 
   .priority-menu {
-    @apply absolute left-full top-0 mt-0 bg-white border border-gray-200 rounded shadow-lg flex flex-col z-50;
-    @apply dark:bg-gray-800 dark:border-gray-600 dark:text-white;
+    @apply absolute left-full top-0 mt-0 z-50;
+    @apply bg-white dark:bg-slate-800;
+    @apply border border-stone-200 dark:border-slate-600;
+    @apply rounded-lg shadow-lg flex flex-col overflow-hidden;
   }
 
   .priority-option {
-    @apply px-3 py-2 text-sm cursor-pointer transition-colors 
-    dark:hover:bg-slate-700;
+    @apply px-3 py-2 text-sm cursor-pointer transition-colors;
+    @apply hover:bg-stone-50 dark:hover:bg-slate-700;
   }
-  .priority-option.high{
-    @apply text-red-600 hover:bg-red-50;
-    @apply dark:hover:bg-slate-700;
-}
 
-.priority-option.medium{
-    @apply text-yellow-600 hover:bg-yellow-50;
-    @apply dark:hover:bg-slate-700;
-}
+  .priority-option.high {
+    @apply text-red-600 dark:text-red-400;
+    @apply hover:bg-red-50 dark:hover:bg-red-950/40;
+  }
 
-.priority-option.low{
-    @apply text-green-600 hover:bg-green-50;
-    @apply dark:hover:bg-slate-700;
-}
+  .priority-option.medium {
+    @apply text-amber-700 dark:text-amber-400;
+    @apply hover:bg-amber-50 dark:hover:bg-amber-950/40;
+  }
 
-/* DARK MODE ///////////////////////////////////////////////////////////////////////////////////////////////////*/
-.dark-toggle {
-    @apply cursor-pointer text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white transition-colors;
-    @apply flex items-center gap-2;
-    @apply text-sm font-medium;
-    @apply border-2 border-gray-300 rounded px-2 py-1;
-    @apply dark:border-2 dark:border-gray-600;
-    @apply hover:border-gray-400 dark:hover:border-gray-500;
-    @apply active:scale-[0.98];
-    @apply transition-transform duration-100;
-     
-}
+  .priority-option.low {
+    @apply text-emerald-600 dark:text-emerald-400;
+    @apply hover:bg-emerald-50 dark:hover:bg-emerald-950/40;
+  }
 
+  /* ─── Dark mode toggle ───────────────────────────── */
+
+  .dark-toggle {
+    @apply flex items-center justify-center gap-2;
+    @apply w-9 h-9 rounded-lg;
+    @apply text-stone-600 hover:text-stone-900 dark:text-gray-400 dark:hover:text-white;
+    @apply border border-stone-300 dark:border-slate-600;
+    @apply hover:border-stone-400 dark:hover:border-slate-500;
+    @apply hover:bg-stone-100 dark:hover:bg-slate-800;
+    @apply active:scale-95 transition-all duration-150 cursor-pointer;
+  }
 }
