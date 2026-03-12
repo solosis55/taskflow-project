@@ -1,0 +1,24 @@
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.*
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/settings.json
+
+# Cursor local config / secrets
+.cursor/mcp.json
+
+# Build output (if generated)
+dist/
+build/
