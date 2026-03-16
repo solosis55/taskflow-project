@@ -7,11 +7,22 @@ console.log("JS conectado");
 
 const form = document.querySelector("#task-form");
 const input = document.querySelector("#nueva-tarea");
+const taskDateInput = document.querySelector("#fecha-tarea");
 const taskList = document.querySelector("#task-list");
 const busquedaInput = document.querySelector("#busqueda-input");
 // Botones de acciones masivas sobre tareas principales.
 const completeAllBtn = document.querySelector("#complete-all-btn");
 const clearCompletedBtn = document.querySelector("#clear-completed-btn");
+const dateFilterBar = document.querySelector("#date-filter-bar");
+const dateFilterText = document.querySelector("#date-filter-text");
+const clearDateFilterBtn = document.querySelector("#clear-date-filter-btn");
+const tasksView = document.querySelector("#tasks-view");
+const calendarView = document.querySelector("#calendar-view");
+const calendarMonthLabel = document.querySelector("#calendar-month-label");
+const calendarDays = document.querySelector("#calendar-days");
+const calendarPrevBtn = document.querySelector("#calendar-prev");
+const calendarNextBtn = document.querySelector("#calendar-next");
+const sidebarViewItems = document.querySelectorAll(".sidebar-item[data-view]");
 
 // ═══════════════════════════════════════════════════════════════════
 // ESTADO Y PERSISTENCIA (localStorage)
@@ -19,11 +30,14 @@ const clearCompletedBtn = document.querySelector("#clear-completed-btn");
 // Resumen: origen de datos (`tareas`) y guardado/carga persistente.
 
 let tareas = [];
+let selectedDateFilter = "";
+let refreshCalendarView = () => {};
 
 // Guarda el estado completo de tareas/subtareas en LocalStorage.
 // Se llama tras cualquier cambio de datos (crear, editar, ordenar, borrar, etc.).
 function guardarTareas() {
   localStorage.setItem("tareas", JSON.stringify(tareas));
+  refreshCalendarView();
 }
 
 // Reconstruye el DOM de tareas desde LocalStorage al iniciar la app.
@@ -36,7 +50,8 @@ function cargarTareasGuardadas() {
   taskList.innerHTML = "";
   tareas.forEach(t => {
     const subtasks = Array.isArray(t.subtasks) ? t.subtasks : [];
-    taskList.appendChild(crearTarea(t.text, t.priority, subtasks, Boolean(t.done)));
+    const dueDate = typeof t.dueDate === "string" ? t.dueDate : "";
+    taskList.appendChild(crearTarea(t.text, t.priority, subtasks, Boolean(t.done), dueDate));
   });
 }
 
@@ -46,6 +61,52 @@ function cargarTareasGuardadas() {
 // Resumen: creacion de UI, conversion DOM->estado y utilidades.
 
 const ETIQUETAS_PRIORIDAD = { high: "Alta", medium: "Media", low: "Baja" };
+
+function formatDateLong(dateString) {
+  if (!dateString) return "";
+  const [year, month, day] = dateString.split("-");
+  if (!year || !month || !day) return dateString;
+  const date = new Date(Number(year), Number(month) - 1, Number(day));
+  return date.toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+}
+
+function obtenerConteoTareasPorFecha() {
+  return tareas.reduce((acc, tarea) => {
+    if (!tarea.dueDate) return acc;
+    acc[tarea.dueDate] = (acc[tarea.dueDate] || 0) + 1;
+    return acc;
+  }, {});
+}
+
+function aplicarFiltrosTareas() {
+  const busqueda = busquedaInput.value.toLowerCase().trim();
+
+  taskList.querySelectorAll(".task-card").forEach(tarea => {
+    const textoPrincipal = tarea.querySelector(".task-text").textContent.toLowerCase();
+    const textoSubtareas = Array.from(tarea.querySelectorAll(".subtask-text"))
+      .map(s => s.textContent.toLowerCase())
+      .join(" ");
+    const dueDate = tarea.querySelector(".task-date-input-card")?.value || "";
+    const coincideTexto = textoPrincipal.includes(busqueda) || textoSubtareas.includes(busqueda);
+    const coincideFecha = !selectedDateFilter || dueDate === selectedDateFilter;
+    tarea.style.display = coincideTexto && coincideFecha ? "" : "none";
+  });
+}
+
+function actualizarBarraFiltroFecha() {
+  if (!dateFilterBar || !dateFilterText) return;
+  if (!selectedDateFilter) {
+    dateFilterBar.classList.add("view-hidden");
+    return;
+  }
+
+  dateFilterText.textContent = `Filtrando por fecha: ${formatDateLong(selectedDateFilter)}`;
+  dateFilterBar.classList.remove("view-hidden");
+}
 
 // Crea un <li> de micro tarea.
 // - done: marca visual de completada.
@@ -84,7 +145,7 @@ function crearSubtaskItem(texto, done = false, animate = true) {
 // Crea una tarjeta de tarea completa (cabecera + acciones + bloque de subtareas).
 // Recibe datos ya normalizados para renderizarla en el DOM.
 // done: indica si la tarea principal esta completada (checkbox marcado).
-function crearTarea(texto, prioridad = "high", subtasks = [], done = false) {
+function crearTarea(texto, prioridad = "high", subtasks = [], done = false, dueDate = "") {
   const li = document.createElement("li");
   li.className = "task-card";
   li.draggable = true;
@@ -95,6 +156,7 @@ function crearTarea(texto, prioridad = "high", subtasks = [], done = false) {
         <span class="task-text flex-1"></span>
       </label>
       <div class="task-actions">
+        <input type="date" class="task-date-input-card" aria-label="Fecha de tarea">
         <span class="priority ${prioridad} px-2 py-1 text-sm rounded">${ETIQUETAS_PRIORIDAD[prioridad]}</span>
         <button class="delete-task" type="button" aria-label="Eliminar tarea">🗑</button>
       </div>
@@ -111,7 +173,11 @@ function crearTarea(texto, prioridad = "high", subtasks = [], done = false) {
 
   li.querySelector(".task-text").textContent = texto;
   const taskCheck = li.querySelector(".task-check");
+  const taskDateControl = li.querySelector(".task-date-input-card");
+  const normalizedDueDate = typeof dueDate === "string" ? dueDate : "";
+  taskDateControl.value = normalizedDueDate;
   taskCheck.checked = done;
+  li.dataset.dueDate = normalizedDueDate;
   li.classList.toggle("done", done);
 
   const subtaskList = li.querySelector(".subtask-list");
@@ -139,14 +205,23 @@ function reconstruirArray() {
     const texto = item.querySelector(".task-text").textContent;
     const prioridad = obtenerPrioridadDeBadge(item.querySelector(".priority"));
     const done = item.querySelector(".task-check").checked;
+    const dueDate = item.querySelector(".task-date-input-card")?.value || "";
     const subtasks = Array.from(item.querySelectorAll(".subtask-item")).map(sub => ({
       text: sub.querySelector(".subtask-text").textContent,
       done: sub.querySelector(".subtask-check").checked
     }));
 
     // Persistimos tambien `done` para mantener estado de completada al recargar.
-    tareas.push({ text: texto, priority: prioridad, subtasks, done });
+    item.dataset.dueDate = dueDate;
+    tareas.push({ text: texto, priority: prioridad, subtasks, done, dueDate });
   });
+}
+
+// Reutilizable: sincroniza estado desde DOM y persiste en localStorage.
+function persistFromDom({ applyFilters = false } = {}) {
+  reconstruirArray();
+  guardarTareas();
+  if (applyFilters) aplicarFiltrosTareas();
 }
 
 // Sincroniza solo la parte visual de "tarea completada" (clase CSS),
@@ -172,8 +247,7 @@ function eliminarSubtaskConAnimacion(subtask) {
   const finalize = () => {
     if (!subtask.isConnected) return;
     subtask.remove();
-    reconstruirArray();
-    guardarTareas();
+    persistFromDom();
   };
 
   subtask.addEventListener("transitionend", finalize, { once: true });
@@ -266,6 +340,69 @@ function getDragAfterElement(container, selector, y, draggingClass) {
   ).element;
 }
 
+// Renderiza una cuadrícula mensual simple (lunes-domingo) para la vista calendario.
+function renderCalendar(date, onDaySelect = null) {
+  if (!calendarMonthLabel || !calendarDays) return;
+
+  const year = date.getFullYear();
+  const month = date.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const totalDays = lastDay.getDate();
+  const firstWeekday = (firstDay.getDay() + 6) % 7; // Convierte domingo=0 a lunes=0.
+  const today = new Date();
+  const conteos = obtenerConteoTareasPorFecha();
+
+  calendarMonthLabel.textContent = date.toLocaleDateString("es-ES", {
+    month: "long",
+    year: "numeric"
+  });
+
+  calendarDays.innerHTML = "";
+
+  for (let i = 0; i < firstWeekday; i += 1) {
+    const emptyCell = document.createElement("div");
+    emptyCell.className = "calendar-day empty";
+    calendarDays.appendChild(emptyCell);
+  }
+
+  for (let day = 1; day <= totalDays; day += 1) {
+    const dayCell = document.createElement("button");
+    dayCell.type = "button";
+    dayCell.className = "calendar-day";
+    const dateKey = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    dayCell.dataset.date = dateKey;
+    dayCell.innerHTML = `<span class="calendar-day-number">${day}</span>`;
+
+    const isToday =
+      today.getFullYear() === year &&
+      today.getMonth() === month &&
+      today.getDate() === day;
+
+    if (isToday) {
+      dayCell.classList.add("today");
+    }
+
+    if (selectedDateFilter && selectedDateFilter === dateKey) {
+      dayCell.classList.add("selected");
+    }
+
+    const totalTareas = conteos[dateKey] || 0;
+    if (totalTareas > 0) {
+      const countBadge = document.createElement("span");
+      countBadge.className = "calendar-task-count";
+      countBadge.textContent = String(totalTareas);
+      dayCell.appendChild(countBadge);
+    }
+
+    if (typeof onDaySelect === "function") {
+      dayCell.addEventListener("click", () => onDaySelect(dateKey));
+    }
+
+    calendarDays.appendChild(dayCell);
+  }
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // EVENTOS DE TAREAS (agregar, eliminar, búsqueda, subtareas, prioridad)
 // ═══════════════════════════════════════════════════════════════════
@@ -276,12 +413,15 @@ form.addEventListener("submit", (e) => {
   e.preventDefault();
   const texto = input.value.trim();
   if (!texto) return;
+  const dueDate = taskDateInput?.value || "";
 
-  const nueva = { text: texto, priority: "high", subtasks: [], done: false };
+  const nueva = { text: texto, priority: "high", subtasks: [], done: false, dueDate };
   tareas.push(nueva);
-  taskList.appendChild(crearTarea(nueva.text, nueva.priority, nueva.subtasks, nueva.done));
+  taskList.appendChild(crearTarea(nueva.text, nueva.priority, nueva.subtasks, nueva.done, nueva.dueDate));
   guardarTareas();
   input.value = "";
+  if (taskDateInput) taskDateInput.value = "";
+  aplicarFiltrosTareas();
 });
 
 // Delegación de clicks dentro de #task-list:
@@ -294,8 +434,7 @@ taskList.addEventListener("click", (e) => {
       const confirmado = window.confirm("Estas seguro que quieres borrar la tarea?");
       if (!confirmado) return;
       tarea.remove();
-      reconstruirArray();
-      guardarTareas();
+      persistFromDom();
     }
     return;
   }
@@ -310,8 +449,7 @@ taskList.addEventListener("click", (e) => {
     if (textoSub && listSub) {
       listSub.appendChild(crearSubtaskItem(textoSub, false));
       inputSub.value = "";
-      reconstruirArray();
-      guardarTareas();
+      persistFromDom();
     }
     return;
   }
@@ -358,8 +496,7 @@ taskList.addEventListener("click", (e) => {
     prioridad.classList.add(nivel);
     prioridad.textContent = opcion.textContent;
 
-    reconstruirArray();
-    guardarTareas();
+    persistFromDom();
     cerrarMenusPrioridad();
   }
 });
@@ -369,8 +506,7 @@ taskList.addEventListener("dblclick", (e) => {
   const taskText = e.target.closest(".task-text");
   if (taskText) {
     activarEdicionInline(taskText, () => {
-      reconstruirArray();
-      guardarTareas();
+      persistFromDom();
     });
     return;
   }
@@ -378,8 +514,7 @@ taskList.addEventListener("dblclick", (e) => {
   const subtaskText = e.target.closest(".subtask-text");
   if (subtaskText) {
     activarEdicionInline(subtaskText, () => {
-      reconstruirArray();
-      guardarTareas();
+      persistFromDom();
     });
   }
 });
@@ -403,8 +538,16 @@ taskList.addEventListener("change", (e) => {
   if (e.target.classList.contains("task-check")) {
     const taskCard = e.target.closest(".task-card");
     syncTaskDoneVisual(taskCard, e.target.checked);
-    reconstruirArray();
-    guardarTareas();
+    persistFromDom();
+    return;
+  }
+
+  if (e.target.classList.contains("task-date-input-card")) {
+    const taskCard = e.target.closest(".task-card");
+    if (taskCard) {
+      taskCard.dataset.dueDate = e.target.value || "";
+    }
+    persistFromDom({ applyFilters: true });
     return;
   }
 
@@ -413,8 +556,7 @@ taskList.addEventListener("change", (e) => {
   const subtask = e.target.closest(".subtask-item");
   if (subtask) {
     subtask.classList.toggle("done", e.target.checked);
-    reconstruirArray();
-    guardarTareas();
+    persistFromDom();
   }
 });
 
@@ -428,8 +570,7 @@ if (completeAllBtn) {
       syncTaskDoneVisual(card, true);
     });
 
-    reconstruirArray();
-    guardarTareas();
+    persistFromDom();
   });
 }
 
@@ -442,8 +583,7 @@ if (clearCompletedBtn) {
       if (check?.checked) card.remove();
     });
 
-    reconstruirArray();
-    guardarTareas();
+    persistFromDom();
   });
 }
 
@@ -466,15 +606,13 @@ taskList.addEventListener("dragstart", (e) => {
 taskList.addEventListener("dragend", (e) => {
   if (e.target.classList.contains("task-card")) {
     e.target.classList.remove("dragging-task");
-    reconstruirArray();
-    guardarTareas();
+    persistFromDom();
     return;
   }
 
   if (e.target.classList.contains("subtask-item")) {
     e.target.classList.remove("dragging-subtask");
-    reconstruirArray();
-    guardarTareas();
+    persistFromDom();
   }
 });
 
@@ -509,16 +647,7 @@ taskList.addEventListener("dragover", (e) => {
 
 // Filtro en tiempo real: busca coincidencias en tarea principal y subtareas.
 busquedaInput.addEventListener("input", () => {
-  const busqueda = busquedaInput.value.toLowerCase().trim();
-
-  taskList.querySelectorAll(".task-card").forEach(tarea => {
-    const textoPrincipal = tarea.querySelector(".task-text").textContent.toLowerCase();
-    const textoSubtareas = Array.from(tarea.querySelectorAll(".subtask-text"))
-      .map(s => s.textContent.toLowerCase())
-      .join(" ");
-    const coincide = textoPrincipal.includes(busqueda) || textoSubtareas.includes(busqueda);
-    tarea.style.display = coincide ? "" : "none";
-  });
+  aplicarFiltrosTareas();
 });
 
 document.addEventListener("click", cerrarMenusPrioridad);
@@ -529,6 +658,78 @@ document.addEventListener("click", cerrarMenusPrioridad);
 // Resumen: preferencias visuales globales y estado del layout.
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Navegación de vistas: tareas <-> calendario.
+  let currentView = localStorage.getItem("currentView") || "tasks";
+  let calendarDate = new Date();
+  const savedDateFilter = localStorage.getItem("selectedDateFilter") || "";
+  selectedDateFilter = savedDateFilter;
+  let setView = () => {};
+
+  const handleCalendarDaySelect = (pickedDate) => {
+    setDateFilter(pickedDate);
+    setView("tasks");
+  };
+
+  const setDateFilter = (dateString) => {
+    selectedDateFilter = dateString || "";
+    localStorage.setItem("selectedDateFilter", selectedDateFilter);
+    actualizarBarraFiltroFecha();
+    aplicarFiltrosTareas();
+    renderCalendar(calendarDate, handleCalendarDaySelect);
+  };
+
+  setView = (view) => {
+    if (!tasksView || !calendarView) return;
+
+    const showCalendar = view === "calendar";
+    tasksView.classList.toggle("view-hidden", showCalendar);
+    calendarView.classList.toggle("view-hidden", !showCalendar);
+    currentView = showCalendar ? "calendar" : "tasks";
+    localStorage.setItem("currentView", currentView);
+
+    sidebarViewItems.forEach(item => {
+      const isActive = item.dataset.view === currentView;
+      item.classList.toggle("active", isActive);
+    });
+
+    if (showCalendar) renderCalendar(calendarDate, handleCalendarDaySelect);
+  };
+
+  refreshCalendarView = () => {
+    renderCalendar(calendarDate, handleCalendarDaySelect);
+  };
+
+  sidebarViewItems.forEach(item => {
+    item.addEventListener("click", (e) => {
+      e.preventDefault();
+      setView(item.dataset.view || "tasks");
+    });
+  });
+
+  if (calendarPrevBtn) {
+    calendarPrevBtn.addEventListener("click", () => {
+      calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth() - 1, 1);
+      refreshCalendarView();
+    });
+  }
+
+  if (calendarNextBtn) {
+    calendarNextBtn.addEventListener("click", () => {
+      calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth() + 1, 1);
+      refreshCalendarView();
+    });
+  }
+
+  if (clearDateFilterBtn) {
+    clearDateFilterBtn.addEventListener("click", () => {
+      setDateFilter("");
+    });
+  }
+
+  setView(currentView);
+  actualizarBarraFiltroFecha();
+  aplicarFiltrosTareas();
+
   // Modo oscuro
   const darkToggle = document.querySelector("#dark-toggle");
   if (darkToggle) {

@@ -31,13 +31,13 @@
           <p class="sidebar-title">Navegación</p>
           <ul class="sidebar-nav">
             <li>
-              <a class="sidebar-item active">
+              <a class="sidebar-item active" href="#" data-view="tasks">
                 <span class="sidebar-icon">📁</span>
                 <span class="sidebar-text">Proyectos</span>
               </a>
             </li>
             <li>
-              <a class="sidebar-item" href="#">
+              <a class="sidebar-item" href="#" data-view="calendar">
                 <span class="sidebar-icon">📅</span>
                 <span class="sidebar-text">Calendario</span>
               </a>
@@ -61,28 +61,50 @@
       <!-- Contenido principal -->
       <main class="main-content">
         <div class="content">
+          <section id="tasks-view">
+            <!-- Sección: formulario para añadir tareas -->
+            <section>
+              <form id="task-form" class="task-form">
+                <label class="task-form"></label>
+                <input id="nueva-tarea" type="text" placeholder="Nueva tarea..." class="task-input">
+                <input id="fecha-tarea" type="date" class="task-input task-date-create">
+                <button type="submit" class="task-button">Agregar</button>
+              </form>
+            </section>
 
-          <!-- Sección: formulario para añadir tareas -->
-          <section>
-            <form id="task-form" class="task-form">
-              <label class="task-form"></label>
-              <input id="nueva-tarea" type="text" placeholder="Nueva tarea..." class="task-input">
-              <button type="submit" class="task-button">Agregar</button>
-            </form>
+            <!-- Sección: lista de tareas con búsqueda -->
+            <section>
+              <h2 class="task-head-text">Lista de tareas</h2>
+              <div id="date-filter-bar" class="date-filter view-hidden">
+                <span id="date-filter-text"></span>
+                <button id="clear-date-filter-btn" type="button" class="task-bulk-btn">Quitar filtro</button>
+              </div>
+              <div class="busqueda mb-4">
+                <label class=".task-head-search">Buscar</label>
+                <input id="busqueda-input" type="text" placeholder="Filtrar tareas" class="task-input">
+              </div>
+              <div class="task-bulk-actions">
+                <button id="complete-all-btn" type="button" class="task-bulk-btn">Marcar todas como completadas</button>
+                <button id="clear-completed-btn" type="button" class="task-bulk-btn danger">Borrar completadas</button>
+              </div>
+              <ul id="task-list" class="task-list"></ul>
+            </section>
           </section>
 
-          <!-- Sección: lista de tareas con búsqueda -->
-          <section>
-            <h2 class="task-head-text">Lista de tareas</h2>
-            <div class="busqueda mb-4">
-              <label class=".task-head-search">Buscar</label>
-              <input id="busqueda-input" type="text" placeholder="Filtrar tareas" class="task-input">
+          <!-- Sección de calendario: muestra las tareas organizadas por días del mes -->
+          <section id="calendar-view" class="view-hidden">
+            <div class="calendar-header">
+              <h2 class="task-head-text calendar-title">Calendario</h2>
+              <div class="calendar-controls">
+                <button id="calendar-prev" type="button" class="task-bulk-btn">Anterior</button>
+                <button id="calendar-next" type="button" class="task-bulk-btn">Siguiente</button>
+              </div>
             </div>
-            <div class="task-bulk-actions">
-              <button id="complete-all-btn" type="button" class="task-bulk-btn">Marcar todas como completadas</button>
-              <button id="clear-completed-btn" type="button" class="task-bulk-btn danger">Borrar completadas</button>
+            <div id="calendar-month-label" class="calendar-month-label"></div>
+            <div class="calendar-grid calendar-weekdays">
+              <span>Lun</span><span>Mar</span><span>Mie</span><span>Jue</span><span>Vie</span><span>Sab</span><span>Dom</span>
             </div>
-            <ul id="task-list" class="task-list"></ul>
+            <div id="calendar-days" class="calendar-grid calendar-days"></div>
           </section>
 
         </div>
