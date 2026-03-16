@@ -1956,6 +1956,12 @@ body {
   display: none;
 }
 
+.date-filter.view-hidden,
+#calendar-view.view-hidden,
+#tasks-view.view-hidden {
+  display: none;
+}
+
 .task-date-create {
   margin-top: 0.25rem;
 }
