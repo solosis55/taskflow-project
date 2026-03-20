@@ -1,0 +1,35 @@
+[
+  {
+    "id": "23289b8a-1d11-4d51-9468-a06362d5da62",
+    "title": "Proyecto 1: Utilización de HTML y CSS",
+    "completed": true,
+    "priority": "medium",
+    "dueDate": "2026-03-20",
+    "subtasks": [
+      {
+        "id": "ab54992f-556f-4ceb-9af6-5331409a654f",
+        "text": "Hola",
+        "done": false
+      }
+    ],
+    "position": 0
+  },
+  {
+    "id": "f21e5181-5d31-46aa-976f-cdb4b866bdc1",
+    "title": "Tarea desde postman",
+    "completed": false,
+    "priority": "high",
+    "dueDate": "",
+    "subtasks": [],
+    "position": 1
+  },
+  {
+    "id": "019f8ff5-3818-418a-914e-9980075d4fa3",
+    "title": "Proyecto 2: Utilización de JavaScripts y DOM",
+    "completed": false,
+    "priority": "high",
+    "dueDate": "",
+    "subtasks": [],
+    "position": 2
+  }
+]

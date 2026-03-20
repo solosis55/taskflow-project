@@ -75,6 +75,7 @@
             <!-- Sección: lista de tareas con búsqueda -->
             <section>
               <h2 class="task-head-text">Lista de tareas</h2>
+              <div id="network-status" class="network-status is-hidden" role="status" aria-live="polite"></div>
               <div id="date-filter-bar" class="date-filter view-hidden">
                 <span id="date-filter-text"></span>
                 <button id="clear-date-filter-btn" type="button" class="task-bulk-btn">Quitar filtro</button>
@@ -127,11 +128,10 @@
   </div>
 
   <script src="js/dom.js"></script>
-  <script src="js/storage.js"></script>
   <script src="js/filters.js"></script>
   <script src="js/calendar.js"></script>
   <script src="js/tasks.js"></script>
-  <script src="js/bootstrap.js"></script>
+  <script type="module" src="js/bootstrap.js"></script>
 
 </body>
 </html>
