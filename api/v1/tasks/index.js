@@ -1,24 +1,14 @@
-const taskService = require("../../../../backend/src/services/task.service");
+const taskService = require("../../../backend/src/services/task.service");
+const { parseJsonBody } = require("../../_lib/parse-json-body");
 
-const parseBody = (req) => {
-  if (typeof req.body === "string") {
-    try {
-      return JSON.parse(req.body);
-    } catch (_error) {
-      return {};
-    }
-  }
-  return req.body || {};
-};
-
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   if (req.method === "GET") {
     const tasks = taskService.obtenerTodas();
     return res.status(200).json(tasks);
   }
 
   if (req.method === "POST") {
-    const body = parseBody(req);
+    const body = await parseJsonBody(req);
     const title = typeof body.title === "string" ? body.title.trim() : "";
 
     if (!title) {

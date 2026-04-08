@@ -1,18 +1,8 @@
-const taskService = require("../../../../backend/src/services/task.service");
+const taskService = require("../../../backend/src/services/task.service");
+const { parseJsonBody } = require("../../_lib/parse-json-body");
 
-const parseBody = (req) => {
-  if (typeof req.body === "string") {
-    try {
-      return JSON.parse(req.body);
-    } catch (_error) {
-      return {};
-    }
-  }
-  return req.body || {};
-};
-
-module.exports = (req, res) => {
-  const { id } = req.query;
+module.exports = async (req, res) => {
+  const id = req.query?.id;
 
   if (!id || typeof id !== "string") {
     return res.status(400).json({ error: "Datos invalidos" });
@@ -20,7 +10,7 @@ module.exports = (req, res) => {
 
   if (req.method === "PATCH") {
     try {
-      const body = parseBody(req);
+      const body = await parseJsonBody(req);
       const updated = taskService.actualizarTarea(id, body);
       return res.status(200).json(updated);
     } catch (error) {

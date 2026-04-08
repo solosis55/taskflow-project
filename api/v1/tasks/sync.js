@@ -1,23 +1,13 @@
-const taskService = require("../../../../backend/src/services/task.service");
+const taskService = require("../../../backend/src/services/task.service");
+const { parseJsonBody } = require("../../_lib/parse-json-body");
 
-const parseBody = (req) => {
-  if (typeof req.body === "string") {
-    try {
-      return JSON.parse(req.body);
-    } catch (_error) {
-      return {};
-    }
-  }
-  return req.body || {};
-};
-
-module.exports = (req, res) => {
+module.exports = async (req, res) => {
   if (req.method !== "PUT") {
     return res.status(405).json({ error: "Metodo no permitido" });
   }
 
   try {
-    const body = parseBody(req);
+    const body = await parseJsonBody(req);
     const tasks = taskService.sincronizarTareas(body.tasks);
     return res.status(200).json(tasks);
   } catch (error) {
