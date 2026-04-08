@@ -13,8 +13,8 @@
 // MENTALIDAD "ULTRA PRINCIPIANTE":
 // - `tasks.js` detecta acciones del usuario.
 // - `bootstrap.js` decide cómo persistirlas.
-// - `api/client.js` hace las peticiones reales al backend.
-import { getTasks, createTask, updateTask, deleteTask, syncTasks } from "../api/client.js";
+// - `js/api-client.js` hace las peticiones reales al backend.
+import { getTasks, createTask, updateTask, deleteTask, syncTasks } from "./api-client.js";
 console.log("JS conectado"); // Verificación rápida de carga del script.
 
 // ─── Dependencias DOM ─────────────────────────────────────────────
