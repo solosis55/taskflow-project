@@ -49,11 +49,15 @@ export const updateTask = async (id, payload) => {
 };
 
 export const deleteTask = async (id) => {
-  const response = await fetch(taskUrl(id), {
-    method: "DELETE"
+  // POST /remove + id en JSON: en Vercel DELETE sobre rutas [id] a veces no enruta bien.
+  const response = await fetch(`${API_URL}/remove`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ id })
   });
-  // En serverless la tarea puede estar en otra instancia (memoria): 404 no debe bloquear la UI;
-  // el sync completo que viene despues alinea el estado.
+  // Memoria repartida en serverless: 404 no bloquea; el sync posterior alinea estado.
   if (response.ok || response.status === 404) return;
   throw new Error("DELETE_TASK_ERROR");
 };

@@ -37,6 +37,15 @@ router.post("/", taskController.crearTarea); // Crea una tarea nueva.
 // Guarda todo de una vez (orden, subtareas, etc).
 router.put("/sync", taskController.sincronizarTareas); // Sincroniza estado completo (orden + subtareas).
 
+// POST /api/v1/tasks/remove
+// Mismo borrado que DELETE /:id pero con id en el body (Vercel / proxies suelen ir mejor así).
+router.post("/remove", (req, res, next) => {
+  const id = typeof req.body?.id === "string" ? req.body.id.trim() : "";
+  if (!id) return next(new Error("VALIDATION_ERROR"));
+  req.params = { id };
+  taskController.eliminarTarea(req, res, next);
+});
+
 // PATCH /api/v1/tasks/:id
 // :id es el identificador de la tarea (cambia en cada URL).
 // Actualiza solo algunos campos.
