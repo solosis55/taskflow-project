@@ -16,21 +16,28 @@ const path = require("node:path"); // Ayuda a construir rutas de archivos.
 
 const DATA_DIR = path.join(__dirname, "..", "data"); // Carpeta donde vive el archivo de datos.
 const TASKS_FILE = path.join(DATA_DIR, "tasks.json"); // Archivo JSON persistente de tareas.
+let diskStorageEnabled = true; // Si falla en entornos read-only (ej: Vercel), hacemos fallback a memoria.
 
 // Prepara carpeta y archivo de datos si no existen.
 const ensureStorage = () => { // Asegura que carpeta/archivo existan.
-  if (!fs.existsSync(DATA_DIR)) { // Si no existe la carpeta data...
-    fs.mkdirSync(DATA_DIR, { recursive: true }); // ...la crea (incluyendo carpetas padre).
-  }
+  try {
+    if (!fs.existsSync(DATA_DIR)) { // Si no existe la carpeta data...
+      fs.mkdirSync(DATA_DIR, { recursive: true }); // ...la crea (incluyendo carpetas padre).
+    }
 
-  if (!fs.existsSync(TASKS_FILE)) { // Si no existe tasks.json...
-    // Primera ejecución: arranca con array vacío.
-    fs.writeFileSync(TASKS_FILE, "[]", "utf-8"); // ...lo crea con JSON válido vacío.
+    if (!fs.existsSync(TASKS_FILE)) { // Si no existe tasks.json...
+      // Primera ejecución: arranca con array vacío.
+      fs.writeFileSync(TASKS_FILE, "[]", "utf-8"); // ...lo crea con JSON válido vacío.
+    }
+  } catch (_error) {
+    // En serverless/read-only no podemos escribir disco; seguimos en memoria.
+    diskStorageEnabled = false;
   }
 };
 
 // Lee el archivo y lo convierte a array.
 const loadTasksFromDisk = () => { // Carga tareas persistidas del archivo.
+  if (!diskStorageEnabled) return [];
   try { // Intenta leer y parsear sin romper servidor.
     const raw = fs.readFileSync(TASKS_FILE, "utf-8"); // Lee texto del archivo.
     const parsed = JSON.parse(raw); // Convierte texto JSON a objeto/array.
@@ -43,7 +50,13 @@ const loadTasksFromDisk = () => { // Carga tareas persistidas del archivo.
 
 // Guarda en disco el array actual de tareas.
 const saveTasksToDisk = () => { // Guarda estado actual en tasks.json.
-  fs.writeFileSync(TASKS_FILE, JSON.stringify(tasks, null, 2), "utf-8"); // Serializa con sangría legible.
+  if (!diskStorageEnabled) return; // En read-only solo mantenemos estado en memoria.
+  try {
+    fs.writeFileSync(TASKS_FILE, JSON.stringify(tasks, null, 2), "utf-8"); // Serializa con sangría legible.
+  } catch (_error) {
+    // Si el entorno pasa a read-only, degradamos a memoria sin romper requests.
+    diskStorageEnabled = false;
+  }
 };
 
 ensureStorage(); // Ejecuta preparación de almacenamiento al cargar el módulo.
