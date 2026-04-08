@@ -3,6 +3,8 @@
 
 const API_URL = "/api/v1/tasks"; // URL relativa para local y Vercel en el mismo dominio.
 
+const taskUrl = (id) => `${API_URL}/${encodeURIComponent(id)}`;
+
 const parseJsonSafely = async (response) => {
   const text = await response.text();
   if (!text) return null;
@@ -34,7 +36,7 @@ export const createTask = async ({ title, priority = "high", dueDate = "", subta
 };
 
 export const updateTask = async (id, payload) => {
-  const response = await fetch(`${API_URL}/${id}`, {
+  const response = await fetch(taskUrl(id), {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json"
@@ -47,10 +49,13 @@ export const updateTask = async (id, payload) => {
 };
 
 export const deleteTask = async (id) => {
-  const response = await fetch(`${API_URL}/${id}`, {
+  const response = await fetch(taskUrl(id), {
     method: "DELETE"
   });
-  if (!response.ok) throw new Error("DELETE_TASK_ERROR");
+  // En serverless la tarea puede estar en otra instancia (memoria): 404 no debe bloquear la UI;
+  // el sync completo que viene despues alinea el estado.
+  if (response.ok || response.status === 404) return;
+  throw new Error("DELETE_TASK_ERROR");
 };
 
 export const syncTasks = async (tasks) => {

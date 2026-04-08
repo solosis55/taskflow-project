@@ -1,10 +1,33 @@
 const taskService = require("../../../backend/src/services/task.service");
 const { parseJsonBody } = require("../../_lib/parse-json-body");
 
-module.exports = async (req, res) => {
-  const id = req.query?.id;
+function getTaskId(req) {
+  let id = req.query?.id;
+  if (Array.isArray(id)) id = id[0];
+  if (typeof id === "string" && id.trim().length > 0) {
+    return id.trim();
+  }
 
-  if (!id || typeof id !== "string") {
+  const pathOnly = String(req.url || "").split("?")[0];
+  const prefix = "/api/v1/tasks/";
+  if (pathOnly.startsWith(prefix)) {
+    const rest = pathOnly.slice(prefix.length);
+    if (rest && rest !== "sync") {
+      try {
+        return decodeURIComponent(rest).trim();
+      } catch (_error) {
+        return rest.trim();
+      }
+    }
+  }
+
+  return null;
+}
+
+module.exports = async (req, res) => {
+  const id = getTaskId(req);
+
+  if (!id) {
     return res.status(400).json({ error: "Datos invalidos" });
   }
 
@@ -27,7 +50,7 @@ module.exports = async (req, res) => {
   if (req.method === "DELETE") {
     try {
       taskService.eliminarTarea(id);
-      return res.status(204).send();
+      return res.status(204).end();
     } catch (error) {
       if (error?.message === "NOT_FOUND") {
         return res.status(404).json({ error: "Recurso no encontrado" });

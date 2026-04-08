@@ -329,13 +329,15 @@ function bindTaskEvents({
       return;
     }
 
-    if (e.target.classList.contains("delete-task")) {
-      const tarea = e.target.closest(".task-card");
+    const clickRoot = e.target instanceof Element ? e.target : e.target.parentElement;
+    const deleteTaskBtn = clickRoot?.closest("button.delete-task");
+    if (deleteTaskBtn) {
+      const tarea = deleteTaskBtn.closest(".task-card");
       if (tarea) {
         const confirmado = window.confirm("Estas seguro que quieres borrar la tarea?"); // Confirmación antes de borrar.
         if (!confirmado) return;
         const taskId = tarea.dataset.id || "";
-        const deleteBtn = e.target;
+        const deleteBtn = deleteTaskBtn;
         if (taskId && onDeleteTask) {
           deleteBtn.disabled = true;
           try {
