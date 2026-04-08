@@ -9,7 +9,7 @@
 // - Body: datos que enviamos en la petición.
 // - Ruta de API: URL de una acción (ej: /tasks, /tasks/:id).
 
-const API_URL = "http://localhost:3000/api/v1/tasks"; // URL base de tareas en backend.
+const API_URL = "/api/v1/tasks"; // URL relativa para local y Vercel en el mismo dominio.
 
 // Intenta parsear JSON sin romper cuando el backend responde vacío
 // (por ejemplo, DELETE 204) o con cuerpo no JSON.
