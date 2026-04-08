@@ -50,8 +50,12 @@ app.get("/", (req, res) => { // Ruta de prueba rápida del servidor.
   res.send("API funcionando 🚀"); // Respuesta simple para comprobar estado.
 });
 
-// Arranca el servidor en el puerto indicado.
-app.listen(PORT, () => { // Inicia el servidor HTTP en el puerto configurado.
-  console.log(`Servidor corriendo en http://localhost:${PORT}`); // Log de arranque correcto.
-});
+// En local arrancamos con app.listen; en Vercel se exporta `app` como handler.
+if (require.main === module) {
+  app.listen(PORT, () => { // Inicia el servidor HTTP en el puerto configurado.
+    console.log(`Servidor corriendo en http://localhost:${PORT}`); // Log de arranque correcto.
+  });
+}
+
+module.exports = app;
 
