@@ -130,7 +130,11 @@ npx tailwindcss -i input.css -o styles.css --watch
 ## Notas
 
 - Si editas `input.css`, recuerda recompilar `styles.css`.
-- El proyecto no usa backend: todos los datos viven en el navegador.
+- La interfaz web descrita aqui puede usarse sin servidor: los datos se guardan en el navegador (`localStorage`).
+
+## Backend
+
+Para ver la documentacion de la API y la implementacion del backend, consulta [backend/README-IMPLEMENTACION-API.md](backend/README-IMPLEMENTACION-API.md).
 
 ## Autor
 
